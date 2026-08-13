@@ -5,6 +5,12 @@
   --font-mono: var(--font-geist-mono);
 }
 
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #ffffff;
+}
+
 body {
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }

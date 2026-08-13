@@ -1,227 +1,282 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
-import { useGSAP } from "@gsap/react";
-import { Canvas } from "@react-three/fiber";
-import { Center, Environment, Text3D } from "@react-three/drei";
+import { useEffect, useRef } from "react";
+import { Bodoni_Moda, Space_Grotesk } from "next/font/google";
 import gsap from "gsap";
 
-function HeroBackground() {
-  return (
-    <div className="hero-bg pointer-events-none absolute inset-0 overflow-hidden bg-[#0a0a0a]">
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse 900px 700px at 68% -8%, rgba(255,255,255,0.14), transparent 60%)",
-        }}
-      />
+/**
+ * KYS — Hero
+ * -----------------------------------------------------------------------
+ * Carried over from the existing hero concept rather than rebuilt: the
+ * oversized wordmark wipes into view via clip-path, a faint calibration
+ * ring (the one "instrument" reference) settles in behind it and drifts
+ * with the cursor, and an ambient light field breathes underneath. That
+ * mechanic — instrumentation resolving into a brand mark — already reads
+ * as "signal becoming clarity", which is exactly the KYS story (guessing
+ * → understanding), so it's kept intact. What changes is scope: the
+ * wordmark now shares the frame with the real headline, sub-copy and two
+ * CTAs the brief calls for, instead of standing alone.
+ *
+ * Tokens (unchanged from the existing system):
+ *  cream #FAF5EE · ink #2B2330 · aubergine #3E1F3D · mauve #8C5A82 ·
+ *  blush #E9B9CC · display: Bodoni Moda · technical/labels: Space Grotesk
+ * -----------------------------------------------------------------------
+ */
 
-      <svg
-        className="absolute inset-0 h-full w-full opacity-40"
-        viewBox="0 0 1456 819"
-        preserveAspectRatio="xMidYMid slice"
-        fill="none"
-      >
-        <circle cx="1120" cy="430" r="480" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
-        <circle cx="748" cy="135" r="3" fill="rgba(255,255,255,0.6)" />
-        <circle cx="1331" cy="436" r="3" fill="rgba(255,255,255,0.6)" />
-      </svg>
+const display = Bodoni_Moda({
+  subsets: ["latin"],
+  weight: ["500", "600"],
+  style: ["normal", "italic"],
+  variable: "--font-display",
+});
 
-      <svg className="absolute inset-0 h-full w-full opacity-[0.035] mix-blend-overlay">
-        <filter id="grain">
-          <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch" />
-        </filter>
-        <rect width="100%" height="100%" filter="url(#grain)" />
-      </svg>
-
-      <svg
-        className="absolute inset-x-0 bottom-0 h-[45%] w-full"
-        viewBox="0 0 1456 400"
-        preserveAspectRatio="none"
-      >
-        <defs>
-          <linearGradient id="wave1" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#2a2a2e" />
-            <stop offset="100%" stopColor="#050505" />
-          </linearGradient>
-          <linearGradient id="wave2" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#1c1c1f" />
-            <stop offset="100%" stopColor="#050505" />
-          </linearGradient>
-          <linearGradient id="wave3" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#131316" />
-            <stop offset="100%" stopColor="#000000" />
-          </linearGradient>
-        </defs>
-        <path
-          d="M0,180 C240,120 420,220 680,160 C900,110 1080,200 1456,140 L1456,400 L0,400 Z"
-          fill="url(#wave1)"
-          opacity="0.55"
-        />
-        <path
-          d="M0,240 C260,190 480,260 760,210 C980,170 1160,250 1456,200 L1456,400 L0,400 Z"
-          fill="url(#wave2)"
-          opacity="0.75"
-        />
-        <path
-          d="M0,300 C300,260 520,320 800,280 C1040,250 1220,310 1456,270 L1456,400 L0,400 Z"
-          fill="url(#wave3)"
-        />
-      </svg>
-    </div>
-  );
-}
-
-function Letter({ onReady }) {
-  const groupRef = useRef(null);
-
-  useEffect(() => {
-    if (groupRef.current) onReady?.(groupRef.current);
-  }, [onReady]);
-
-  return (
-    <group ref={groupRef} position={[0, 0, 0]} rotation={[0.1, -0.5, 0]} scale={1}>
-      <Center>
-        <Text3D
-          font="/fonts/helvetiker_bold.typeface.json"
-          size={2.2}
-          height={0.55}
-          curveSegments={24}
-          bevelEnabled
-          bevelThickness={0.06}
-          bevelSize={0.035}
-          bevelSegments={8}
-        >
-          B
-          <meshPhysicalMaterial
-            color="#475569"
-            emissive="#0f172a"
-            emissiveIntensity={0.28}
-            metalness={0.62}
-            roughness={0.2}
-            clearcoat={1}
-            clearcoatRoughness={0.12}
-            envMapIntensity={2.8}
-          />
-        </Text3D>
-      </Center>
-    </group>
-  );
-}
-
-function HeroLetter3D({ onReady }) {
-  return (
-    <Canvas camera={{ position: [0, 0, 8], fov: 35 }} dpr={[1, 2]} gl={{ antialias: true, alpha: true }}>
-      <ambientLight intensity={0.7} />
-      <directionalLight position={[5, 6, 5]} intensity={1.7} />
-      <directionalLight position={[-4, 2, 6]} intensity={1.5} color="#e0f2fe" />
-      <pointLight position={[-4, -2, 3]} intensity={1} color="#7dd3fc" />
-      <Suspense fallback={null}>
-        <Letter onReady={onReady} />
-        <Environment preset="city" />
-      </Suspense>
-    </Canvas>
-  );
-}
-
-function HeroLetterMark({ onReady }) {
-  const [isReady, setIsReady] = useState(false);
-
-  const handleReady = (group) => {
-    setIsReady(true);
-    onReady?.(group);
-  };
-
-  return (
-    <div className="relative h-full w-full">
-      <div
-        aria-hidden="true"
-        className={`absolute inset-0 grid place-items-center font-black leading-none text-slate-300 transition-opacity duration-700 ${
-          isReady ? "opacity-20" : "opacity-45"
-        }`}
-        style={{ fontSize: "clamp(22rem, 46vw, 46rem)" }}
-      >
-        B
-      </div>
-      <div className="absolute inset-0">
-        <HeroLetter3D onReady={handleReady} />
-      </div>
-    </div>
-  );
-}
+const mono = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-mono",
+});
 
 export default function Hero() {
-  const containerRef = useRef(null);
-  const linesRef = useRef([]);
+  const rootRef = useRef(null);
+  const glowRef = useRef(null);
+  const wordmarkRef = useRef(null);
+  const ringRef = useRef(null);
+  const headlineRef = useRef(null);
+  const subRef = useRef(null);
+  const ctaRef = useRef(null);
+  const eyebrowRef = useRef(null);
+  const scrollCueRef = useRef(null);
 
-  const { contextSafe } = useGSAP(
-    () => {
-      gsap
-        .timeline({ defaults: { ease: "power3.out" } })
-        .set(containerRef.current, { autoAlpha: 1 })
-        .from(".hero-bg", { autoAlpha: 0, duration: 1.2 })
-        .from(linesRef.current, { yPercent: 120, duration: 1, stagger: 0.12 }, "-=0.6")
-        .from(".hero-sub", { autoAlpha: 0, y: 20, duration: 0.8 }, "-=0.4")
-        .from(".hero-cta", { autoAlpha: 0, y: 10, duration: 0.6 }, "-=0.5");
-    },
-    { scope: containerRef }
-  );
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      const mm = gsap.matchMedia();
 
-  const playLetterIntro = contextSafe((group) => {
-    gsap
-      .timeline({ defaults: { ease: "power4.out" } })
-      .to(group.position, { x: 0, duration: 1.6 })
-      .to(group.rotation, { x: 0.1, y: -0.5, duration: 1.6 }, "<")
-      .to(group.scale, { x: 1, y: 1, z: 1, duration: 1.6, ease: "back.out(1.3)" }, "<")
-      .call(() => {
-        gsap.to(group.rotation, {
-          y: "+=0.15",
-          duration: 6,
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+        tl.set(wordmarkRef.current, {
+          clipPath: "inset(0% 100% 0% 0%)",
+          scale: 0.94,
+          y: 18,
+          letterSpacing: "0.22em",
+        })
+          .set([eyebrowRef.current, headlineRef.current, subRef.current, ctaRef.current, scrollCueRef.current], {
+            opacity: 0,
+            y: 14,
+          })
+          .set(ringRef.current, { opacity: 0, scale: 0.88, rotate: -10 })
+          .to(glowRef.current, { opacity: 1, duration: 2, ease: "sine.out" }, 0)
+          .to(
+            wordmarkRef.current,
+            {
+              clipPath: "inset(0% 0% 0% 0%)",
+              scale: 1,
+              y: 0,
+              letterSpacing: "-0.01em",
+              duration: 1.4,
+              ease: "power4.out",
+            },
+            0.25
+          )
+          .fromTo(
+            wordmarkRef.current,
+            { backgroundPosition: "0% 50%" },
+            { backgroundPosition: "100% 50%", duration: 1.8, ease: "power2.inOut" },
+            0.4
+          )
+          .to(ringRef.current, { opacity: 1, scale: 1, rotate: 0, duration: 1.5 }, 0.55)
+          .to(eyebrowRef.current, { opacity: 1, y: 0, duration: 0.7 }, 0.8)
+          .to(headlineRef.current, { opacity: 1, y: 0, duration: 0.9 }, 0.95)
+          .to(subRef.current, { opacity: 1, y: 0, duration: 0.9 }, 1.1)
+          .to(ctaRef.current, { opacity: 1, y: 0, duration: 0.8 }, 1.25)
+          .to(scrollCueRef.current, { opacity: 1, y: 0, duration: 0.7 }, 1.4);
+
+        // slow ambient drift once settled
+        gsap.to(wordmarkRef.current, {
+          backgroundPosition: "0% 50%",
+          duration: 16,
           ease: "sine.inOut",
-          yoyo: true,
           repeat: -1,
+          yoyo: true,
+          delay: 2.4,
         });
-      });
-  });
 
-  const lines = ["DESIGN /", "WHICH /", "MOVES"];
+        // cursor parallax
+        const xTo = gsap.quickTo(wordmarkRef.current, "x", { duration: 0.9, ease: "power3.out" });
+        const yTo = gsap.quickTo(wordmarkRef.current, "y", { duration: 0.9, ease: "power3.out" });
+        const ringRotateTo = gsap.quickTo(ringRef.current, "rotate", { duration: 1.3, ease: "power3.out" });
+        const glowXTo = gsap.quickTo(glowRef.current, "xPercent", { duration: 1.6, ease: "power2.out" });
+        const glowYTo = gsap.quickTo(glowRef.current, "yPercent", { duration: 1.6, ease: "power2.out" });
+
+        const handleMove = (e) => {
+          const relX = e.clientX / window.innerWidth - 0.5;
+          const relY = e.clientY / window.innerHeight - 0.5;
+          xTo(relX * 14);
+          yTo(relY * 6);
+          ringRotateTo(relX * 8);
+          glowXTo(relX * 12);
+          glowYTo(relY * 12);
+        };
+
+        window.addEventListener("mousemove", handleMove);
+        return () => window.removeEventListener("mousemove", handleMove);
+      });
+
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set(
+          [
+            wordmarkRef.current,
+            eyebrowRef.current,
+            headlineRef.current,
+            subRef.current,
+            ctaRef.current,
+            ringRef.current,
+            scrollCueRef.current,
+          ],
+          { clearProps: "all", opacity: 1 }
+        );
+      });
+    }, rootRef);
+
+    return () => ctx.revert();
+  }, []);
 
   return (
     <section
-      ref={containerRef}
-      className="invisible relative flex min-h-screen items-center overflow-hidden bg-[#0a0a0a] px-6 sm:px-10 lg:px-20"
+      id="hero"
+      ref={rootRef}
+      className={`${display.variable} ${mono.variable} relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-[#FAF5EE] pt-28 pb-16`}
     >
-      <HeroBackground />
+      {/* ambient light field */}
+      <div
+        ref={glowRef}
+        className="pointer-events-none absolute left-1/2 top-1/2 h-[70vmax] w-[70vmax] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-0 blur-[110px]"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(201,122,160,0.20) 0%, rgba(140,90,130,0.10) 45%, rgba(250,245,238,0) 75%)",
+        }}
+      />
 
-      <div className="pointer-events-none absolute inset-y-0 right-[-10%] z-0 w-[70vw] max-w-[950px] sm:right-[-4%]">
-        <HeroLetterMark onReady={playLetterIntro} />
+      {/* fine scientific grid */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.05]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(43,35,48,1) 1px, transparent 1px), linear-gradient(90deg, rgba(43,35,48,1) 1px, transparent 1px)",
+          backgroundSize: "72px 72px",
+        }}
+      />
+
+      {/* calibration ring behind the wordmark */}
+      <svg
+        ref={ringRef}
+        viewBox="0 0 600 600"
+        className="pointer-events-none absolute top-[30%] h-[46vmin] w-[46vmin] max-h-[460px] max-w-[460px] -translate-y-1/2"
+        style={{ opacity: 0 }}
+      >
+        <circle cx="300" cy="300" r="280" fill="none" stroke="#2B2330" strokeOpacity="0.10" strokeWidth="1" />
+        <circle cx="300" cy="300" r="240" fill="none" stroke="#2B2330" strokeOpacity="0.14" strokeWidth="1" />
+        {Array.from({ length: 72 }).map((_, i) => {
+          const angle = (i * 360) / 72;
+          const major = i % 9 === 0;
+          const r1 = 280;
+          const r2 = major ? 262 : 272;
+          const rad = (angle * Math.PI) / 180;
+          const round = (n) => Math.round(n * 100) / 100;
+          return (
+            <line
+              key={i}
+              x1={round(300 + r1 * Math.cos(rad))}
+              y1={round(300 + r1 * Math.sin(rad))}
+              x2={round(300 + r2 * Math.cos(rad))}
+              y2={round(300 + r2 * Math.sin(rad))}
+              stroke="#2B2330"
+              strokeOpacity={major ? 0.22 : 0.1}
+              strokeWidth="1"
+            />
+          );
+        })}
+      </svg>
+
+      {/* brand eyebrow */}
+      <div
+        ref={eyebrowRef}
+        className="relative z-10 mb-6 font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-[0.28em] text-[#2B2330]/50"
+      >
+        KYS — Skin Intelligence System
       </div>
 
-      <div className="relative z-10 max-w-3xl">
-        <h1 className="text-[13vw] font-semibold leading-[0.9] text-white sm:text-[7vw] lg:text-[6.5vw]">
-          {lines.map((line, i) => (
-            <span key={line} className="block overflow-hidden">
-              <span ref={(el) => (linesRef.current[i] = el)} className="block">
-                {line}
-              </span>
-            </span>
-          ))}
-        </h1>
+      {/* wordmark */}
+      <h1
+        ref={wordmarkRef}
+        className="relative z-10 select-none whitespace-nowrap font-[family-name:var(--font-display)] text-[26vw] font-semibold leading-[0.85] sm:text-[20vw] md:text-[200px] lg:text-[240px]"
+        style={{
+          backgroundImage:
+            "linear-gradient(115deg, #3E1F3D 0%, #6E3F63 30%, #A45F86 55%, #C97AA0 75%, #E9B9CC 100%)",
+          backgroundSize: "220% 100%",
+          WebkitBackgroundClip: "text",
+          backgroundClip: "text",
+          color: "transparent",
+        }}
+      >
+        KYS
+      </h1>
 
-        <p className="hero-sub mt-8 max-w-md text-slate-400">
-          We build sites, apps and systems that give brands a bold digital identity.
+      {/* headline */}
+      <h2
+        ref={headlineRef}
+        className="relative z-10 mt-6 max-w-3xl px-6 text-center font-[family-name:var(--font-display)] text-3xl italic leading-tight text-[#2B2330] sm:text-4xl md:text-5xl"
+      >
+        Your Skin. Your Story. Your Science.
+      </h2>
+
+      {/* sub-copy */}
+      <div ref={subRef} className="relative z-10 mt-7 max-w-2xl px-6 text-center">
+        <p className="font-[family-name:var(--font-mono)] text-base leading-relaxed text-[#2B2330]/75 sm:text-lg">
+          Every skin tells different story. Different needs. Different concerns. Different care.
         </p>
+        <p className="mt-4 font-[family-name:var(--font-mono)] text-base leading-relaxed text-[#2B2330]/75 sm:text-lg">
+          KYS believes skincare should never be one-size-fits-all. Before recommending products, we
+          first understand your skin using advanced skin analysis technology. Because healthy skin
+          begins with knowing your skin.
+        </p>
+      </div>
 
+      {/* CTAs */}
+      <div ref={ctaRef} className="relative z-10 mt-10 flex flex-col items-center gap-4 px-6 sm:flex-row">
         <a
-          href="#projects"
-          className="hero-cta mt-10 inline-flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-white"
+          href="#technology"
+          onClick={(e) => {
+            e.preventDefault();
+            document.querySelector("#technology")?.scrollIntoView({ behavior: "smooth" });
+          }}
+          className="rounded-full px-8 py-3.5 text-center font-[family-name:var(--font-mono)] text-xs uppercase tracking-[0.2em] text-[#FAF5EE] transition-transform duration-300 hover:scale-[1.03]"
+          style={{
+            backgroundImage:
+              "linear-gradient(115deg, #3E1F3D 0%, #6E3F63 30%, #A45F86 55%, #C97AA0 75%, #E9B9CC 100%)",
+          }}
         >
-          View projects
-          <span className="grid h-9 w-9 place-items-center rounded-full border border-white/30">
-            {"\u2192"}
-          </span>
+          Know Your Skin
         </a>
+        <a
+          href="#products"
+          onClick={(e) => {
+            e.preventDefault();
+            document.querySelector("#products")?.scrollIntoView({ behavior: "smooth" });
+          }}
+          className="rounded-full border border-[#2B2330]/20 px-8 py-3.5 text-center font-[family-name:var(--font-mono)] text-xs uppercase tracking-[0.2em] text-[#2B2330] transition-colors duration-300 hover:border-[#2B2330]/40"
+        >
+          Explore Products
+        </a>
+      </div>
+
+      {/* scroll cue */}
+      <div
+        ref={scrollCueRef}
+        className="pointer-events-none absolute bottom-8 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2 font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-[0.28em] text-[#2B2330]/40"
+      >
+        Scroll
+        <span className="h-8 w-px bg-[#2B2330]/25" />
       </div>
     </section>
   );
