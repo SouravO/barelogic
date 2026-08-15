@@ -9,18 +9,6 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-/**
- * KYS — Technology
- * -----------------------------------------------------------------------
- * Three stages: Know Your Skin, Our Technology, What We Analyze. This is
- * meant to be the most "instrumented" section on the page, so it reuses
- * the Hero's calibration-ring motif as a diagnostic device — here it gets
- * a slow radar sweep, tying the site's one recurring signature element to
- * the section that's actually about scanning/measuring skin, rather than
- * inventing a second unrelated visual system.
- * -----------------------------------------------------------------------
- */
-
 const display = Bodoni_Moda({
   subsets: ["latin"],
   weight: ["500", "600"],
@@ -54,9 +42,6 @@ const PARAMETERS = [
   "Texture",
 ];
 
-/** Shared diagnostic ring — concentric circles + tick marks + a sweeping
- *  radar wedge. Used for both "Know Your Skin" and "Our Technology" so the
- *  two stages feel like the same instrument viewed at different moments. */
 function DiagnosticRing({ sweepRef, className }) {
   return (
     <svg viewBox="0 0 600 600" className={className}>
@@ -175,15 +160,8 @@ export default function Technology() {
       />
 
       <div className="relative z-10 mx-auto max-w-6xl">
-        {/* ===== Know Your Skin ===== */}
         <div data-tech-stage className="grid items-center gap-12 border-b border-[#2B2330]/10 py-16 md:grid-cols-2 md:py-24">
           <div>
-            <p
-              data-reveal
-              className="mb-6 font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-[0.28em] text-[#2B2330]/50"
-            >
-              05 — Know Your Skin
-            </p>
             <h2
               data-reveal
               className="mb-8 font-[family-name:var(--font-display)] text-5xl font-semibold italic leading-[1.05] sm:text-6xl"
@@ -221,7 +199,6 @@ export default function Technology() {
           </div>
         </div>
 
-        {/* ===== Our Technology ===== */}
         <div className="grid items-center gap-12 border-b border-[#2B2330]/10 py-16 md:grid-cols-2 md:py-24" data-tech-stage>
           <div className="order-2 flex justify-center md:order-1">
             <DiagnosticRing
@@ -231,12 +208,6 @@ export default function Technology() {
           </div>
 
           <div className="order-1 md:order-2">
-            <p
-              data-reveal
-              className="mb-6 font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-[0.28em] text-[#2B2330]/50"
-            >
-              06 — Our Technology
-            </p>
             <h2
               data-reveal
               className="mb-8 font-[family-name:var(--font-display)] text-4xl font-semibold italic leading-[1.1] sm:text-5xl"
@@ -258,14 +229,7 @@ export default function Technology() {
           </div>
         </div>
 
-        {/* ===== What We Analyze ===== */}
         <div data-tech-stage className="py-16 text-center md:py-24">
-          <p
-            data-reveal
-            className="mb-6 font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-[0.28em] text-[#2B2330]/50"
-          >
-            07 — Diagnostic Scope
-          </p>
           <h2
             data-reveal
             className="mb-12 font-[family-name:var(--font-display)] text-4xl font-semibold italic leading-[1.1] sm:text-5xl"

@@ -9,17 +9,6 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-/**
- * KYS — Contact / Final CTA
- * -----------------------------------------------------------------------
- * The one dark section on the page — a deliberate contrast beat, arriving
- * only after the reader has been through the science and the promise, so
- * it reads as a culmination rather than a sales banner. Background is a
- * deep aubergine/ink blend (#221A26) already implied by the palette
- * rather than a new, unrelated dark color.
- * -----------------------------------------------------------------------
- */
-
 const display = Bodoni_Moda({
   subsets: ["latin"],
   weight: ["500", "600"],
@@ -90,12 +79,6 @@ export default function Contact() {
       />
 
       <div className="relative z-10 mx-auto max-w-2xl">
-        <p
-          data-reveal
-          className="mb-8 font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-[0.28em] text-[#E9B9CC]/70"
-        >
-          12 — Begin
-        </p>
         <h2
           data-reveal
           className="mb-8 font-[family-name:var(--font-display)] text-4xl font-semibold italic leading-[1.1] text-[#FAF5EE] sm:text-5xl md:text-6xl"

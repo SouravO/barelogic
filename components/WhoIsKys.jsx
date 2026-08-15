@@ -9,17 +9,6 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-/**
- * KYS — Who Is KYS For
- * -----------------------------------------------------------------------
- * Audience list rendered as flowing typographic lines rather than an
- * icon/photo grid — deliberately, since illustrating each audience with a
- * stock image or icon nudges toward stereotype ("teenager" = one kind of
- * face). Followed by a testimonial *introduction* only: three empty,
- * outlined slots signal "reviews will live here" without inventing any.
- * -----------------------------------------------------------------------
- */
-
 const display = Bodoni_Moda({
   subsets: ["latin"],
   weight: ["500", "600"],
@@ -86,13 +75,6 @@ export default function WhoIsKys() {
       className={`${display.variable} ${mono.variable} relative overflow-hidden bg-[#FAF5EE] px-6 py-28 md:py-36`}
     >
       <div className="relative z-10 mx-auto max-w-4xl">
-        {/* ===== Who Is KYS For ===== */}
-        <p
-          data-reveal
-          className="mb-6 text-center font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-[0.28em] text-[#2B2330]/50"
-        >
-          11 — Who Is KYS For?
-        </p>
         <h2
           data-reveal
           className="mb-4 text-center font-[family-name:var(--font-display)] text-4xl font-semibold italic leading-[1.1] sm:text-5xl"
@@ -117,7 +99,6 @@ export default function WhoIsKys() {
           ))}
         </div>
 
-        {/* ===== Testimonial Introduction ===== */}
         <div className="mt-28 border-t border-[#2B2330]/10 pt-20 text-center md:mt-32">
           <div className="mx-auto max-w-2xl">
             <p data-reveal className="font-[family-name:var(--font-mono)] text-lg leading-relaxed text-[#2B2330]/75">
@@ -131,7 +112,6 @@ export default function WhoIsKys() {
             </p>
           </div>
 
-          {/* reserved slots for future testimonials — intentionally empty */}
           <div className="mx-auto mt-14 grid max-w-4xl gap-5 sm:grid-cols-3">
             {[0, 1, 2].map((i) => (
               <div

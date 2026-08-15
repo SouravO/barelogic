@@ -2,27 +2,13 @@
 
 import { forwardRef, useEffect, useLayoutEffect, useRef } from "react";
 import { Bodoni_Moda, Space_Grotesk } from "next/font/google";
+import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
-
-/**
- * KYS — Services
- * -----------------------------------------------------------------------
- * Three stages: Products, Why Choose KYS, Our Promise.
- *
- * "Why Choose KYS" reuses the existing pinned scroll-stack mechanic
- * (cards rise from below, settle, then recede as the next one arrives)
- * rather than laying out six flat cards — this is the one place on the
- * page where that heavier, more cinematic mechanic is preserved intact,
- * because it's genuinely suited to walking through a six-point system one
- * conviction at a time. Products and Our Promise stay in the page's
- * regular editorial register on either side of it.
- * -----------------------------------------------------------------------
- */
 
 const display = Bodoni_Moda({
   subsets: ["latin"],
@@ -42,7 +28,6 @@ const GRADIENT =
 
 const WHY_CHOOSE = [
   {
-    number: "01",
     title: "Personalized Approach",
     copy: "Every recommendation based on your skin analysis.",
     bg: "#FAF5EE",
@@ -50,7 +35,6 @@ const WHY_CHOOSE = [
     accent: "#8C5A82",
   },
   {
-    number: "02",
     title: "Scientific Assessment",
     copy: "Advanced technology replaces guesswork.",
     bg: "#F3E9EF",
@@ -58,7 +42,6 @@ const WHY_CHOOSE = [
     accent: "#A45F86",
   },
   {
-    number: "03",
     title: "Expert Guidance",
     copy: "Professional recommendations tailored to your needs.",
     bg: "#EDE1EA",
@@ -66,7 +49,6 @@ const WHY_CHOOSE = [
     accent: "#8C5A82",
   },
   {
-    number: "04",
     title: "Premium Formulations",
     copy: "Carefully selected ingredients backed by research.",
     bg: "#3E1F3D",
@@ -74,7 +56,6 @@ const WHY_CHOOSE = [
     accent: "#E9B9CC",
   },
   {
-    number: "05",
     title: "Progress Tracking",
     copy: "Compare reports over time and monitor improvements.",
     bg: "#2B2330",
@@ -82,7 +63,6 @@ const WHY_CHOOSE = [
     accent: "#C97AA0",
   },
   {
-    number: "06",
     title: "Complete Skin Journey",
     copy: "From analysis to routine to results. Everything under one brand.",
     bg: "#221A26",
@@ -92,7 +72,7 @@ const WHY_CHOOSE = [
 ];
 
 const WhyCard = forwardRef(function WhyCard({ item, variant = "stack" }, ref) {
-  const { number, title, copy, bg, text, accent } = item;
+  const { title, copy, bg, text, accent } = item;
 
   const shape =
     variant === "stack"
@@ -105,20 +85,7 @@ const WhyCard = forwardRef(function WhyCard({ item, variant = "stack" }, ref) {
       className={`${shape} flex flex-col items-center justify-center overflow-hidden rounded-[2rem] px-6 text-center shadow-[0_40px_100px_-30px_rgba(30,20,45,0.35)] sm:rounded-[2.25rem] sm:px-10`}
       style={{ backgroundColor: bg, color: text, willChange: variant === "stack" ? "transform, opacity" : undefined }}
     >
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute -bottom-8 -left-4 select-none text-[8rem] font-bold leading-none opacity-[0.08] sm:-bottom-10 sm:-left-6 sm:text-[11rem]"
-        style={{ color: text }}
-      >
-        {number}
-      </span>
-
       <div className="relative z-10 flex max-w-2xl flex-col items-center">
-        <span
-          className="mb-5 font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-[0.28em] opacity-60"
-        >
-          {number} — Why Choose KYS
-        </span>
         <h3
           data-reveal
           className="font-[family-name:var(--font-display)] text-4xl font-semibold italic leading-[1.1] sm:text-5xl md:text-6xl"
@@ -211,11 +178,13 @@ function WhyChooseStack() {
     <div ref={sectionRef} className="relative w-full h-[700dvh] motion-reduce:h-auto">
       <div ref={pinRef} className="relative h-[100dvh] w-full overflow-hidden bg-[#FAF5EE] motion-reduce:hidden">
         <div className="pointer-events-none absolute inset-0 z-0">
-          <img
+          <Image
             src="/skin.jpg"
             alt=""
             aria-hidden="true"
             className="h-full w-full object-contain object-center md:object-cover"
+            fill
+            sizes="100vw"
           />
         </div>
 
@@ -227,14 +196,10 @@ function WhyChooseStack() {
           }}
         />
 
-        <div className="absolute left-6 top-8 z-20 font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-[0.3em] text-[#2B2330]/50 sm:left-10 sm:top-10">
-          09 — Why Choose KYS
-        </div>
-
         <div className="absolute right-6 top-1/2 z-20 hidden -translate-y-1/2 flex-col gap-3 sm:right-10 md:flex">
           {WHY_CHOOSE.map((s, i) => (
             <span
-              key={s.number}
+              key={s.title}
               ref={(el) => (dotRefs.current[i] = el)}
               className="h-8 w-[3px] origin-bottom rounded-full bg-[#2B2330] transition-[opacity,transform] duration-300"
               style={{ opacity: i === 0 ? 1 : 0.35, transform: i === 0 ? "scaleY(1)" : "scaleY(0.6)" }}
@@ -244,14 +209,14 @@ function WhyChooseStack() {
 
         <div className="relative z-10 h-full w-full">
           {WHY_CHOOSE.map((item, i) => (
-            <WhyCard key={item.number} ref={(el) => (cardRefs.current[i] = el)} item={item} />
+            <WhyCard key={item.title} ref={(el) => (cardRefs.current[i] = el)} item={item} />
           ))}
         </div>
       </div>
 
       <div className="hidden flex-col gap-8 bg-[#FAF5EE] px-4 py-16 motion-reduce:flex sm:py-24">
         {WHY_CHOOSE.map((item) => (
-          <WhyCard key={item.number} item={item} variant="static" />
+          <WhyCard key={item.title} item={item} variant="static" />
         ))}
       </div>
     </div>
@@ -289,7 +254,6 @@ export default function Services() {
 
   return (
     <div className={`${display.variable} ${mono.variable}`}>
-      {/* ===== Products ===== */}
       <section id="products" ref={productsRef} className="relative overflow-hidden bg-[#FAF5EE] px-6 py-28 md:py-36">
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.04]"
@@ -301,12 +265,6 @@ export default function Services() {
         />
         <div className="relative z-10 mx-auto grid max-w-6xl items-center gap-14 md:grid-cols-2">
           <div>
-            <p
-              data-reveal
-              className="mb-6 font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-[0.28em] text-[#2B2330]/50"
-            >
-              09 — Products
-            </p>
             <h2
               data-reveal
               className="mb-8 font-[family-name:var(--font-display)] text-4xl font-semibold italic leading-[1.1] sm:text-5xl"
@@ -328,12 +286,11 @@ export default function Services() {
               </p>
               <p data-reveal>
                 Whether your skin needs hydration, oil control, brightening, acne care, or
-                anti-aging support, your recommendations begin with understanding—not marketing.
+                anti-aging support, your recommendations begin with understanding not marketing.
               </p>
             </div>
           </div>
 
-          {/* abstract formulation visual — no invented product names/claims */}
           <div data-reveal className="relative mx-auto flex h-[320px] w-full max-w-sm items-center justify-center sm:h-[380px]">
             <div
               className="absolute inset-0 rounded-[2.5rem] opacity-90"
@@ -349,20 +306,12 @@ export default function Services() {
         </div>
       </section>
 
-      {/* ===== Why Choose KYS (preserved pin-stack mechanic) ===== */}
       <WhyChooseStack />
 
-      {/* ===== Our Promise ===== */}
       <section
         ref={promiseRef}
         className="relative flex min-h-[70vh] flex-col items-center justify-center bg-[#FAF5EE] px-6 py-28 text-center md:py-36"
       >
-        <p
-          data-reveal
-          className="mb-8 font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-[0.28em] text-[#2B2330]/50"
-        >
-          10 — Our Promise
-        </p>
         <h2
           data-reveal
           className="mx-auto max-w-2xl font-[family-name:var(--font-display)] text-3xl italic leading-[1.4] text-[#2B2330] sm:text-4xl md:text-5xl"

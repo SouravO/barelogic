@@ -91,7 +91,7 @@ export default function Navbar() {
           onClick={(e) => handleNavClick(e, "body")}
           className="font-[family-name:var(--font-display)] text-2xl font-semibold italic text-[#2B2330]"
         >
-          KYS
+          BareLogic
         </a>
 
         {/* Desktop links */}

@@ -9,17 +9,6 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-/**
- * KYS — How It Works
- * -----------------------------------------------------------------------
- * A pinned, scroll-scrubbed journey: a vertical line draws downward
- * through Analyze → Understand → Personalize → Transform, and the step
- * nearest the scroll progress lights up while the others recede. The
- * numbering here is genuinely sequential (it's a process, not a decorative
- * 01/02/03), so a progress rail is the right structural device for it.
- * -----------------------------------------------------------------------
- */
-
 const display = Bodoni_Moda({
   subsets: ["latin"],
   weight: ["500", "600"],
@@ -38,22 +27,18 @@ const GRADIENT =
 
 const STEPS = [
   {
-    number: "01",
     title: "Analyze",
     copy: "Your skin scanned using professional skin analysis technology.",
   },
   {
-    number: "02",
     title: "Understand",
     copy: "Receive complete report explaining your skin condition.",
   },
   {
-    number: "03",
     title: "Personalize",
     copy: "Experts recommend skincare routine based on your unique skin profile.",
   },
   {
-    number: "04",
     title: "Transform",
     copy: "Follow routine. Track improvements. Re-analyze periodically.",
   },
@@ -113,9 +98,6 @@ export default function HowItWorks() {
         />
 
         <div className="relative z-10 mx-auto w-full max-w-3xl">
-          <p className="mb-4 font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-[0.28em] text-[#2B2330]/50">
-            08 — How KYS Works
-          </p>
           <h2
             className="mb-14 font-[family-name:var(--font-display)] text-4xl font-semibold italic leading-[1.1] sm:text-5xl"
             style={{
@@ -128,10 +110,8 @@ export default function HowItWorks() {
             How KYS Works
           </h2>
 
-          <div className="relative pl-12 sm:pl-16">
-            {/* static track */}
+          <div className="relative pl-8 sm:pl-10">
             <div className="absolute left-3 top-1 h-full w-px bg-[#2B2330]/12 sm:left-4" />
-            {/* progress line */}
             <div
               ref={lineRef}
               className="absolute left-3 top-1 h-full w-px sm:left-4"
@@ -141,16 +121,10 @@ export default function HowItWorks() {
             <div className="space-y-12">
               {STEPS.map((step, i) => (
                 <div
-                  key={step.number}
+                  key={step.title}
                   ref={(el) => (stepRefs.current[i] = el)}
                   className="relative motion-reduce:opacity-100"
                 >
-                  <span
-                    aria-hidden="true"
-                    className="absolute -left-12 top-0 flex h-6 w-6 items-center justify-center rounded-full border border-[#2B2330]/20 bg-[#FAF5EE] font-[family-name:var(--font-mono)] text-[10px] text-[#2B2330]/70 sm:-left-16"
-                  >
-                    {step.number}
-                  </span>
                   <h3 className="font-[family-name:var(--font-display)] text-2xl font-semibold italic text-[#2B2330] sm:text-3xl">
                     {step.title}
                   </h3>
@@ -162,7 +136,7 @@ export default function HowItWorks() {
             </div>
           </div>
 
-          <p className="mt-14 pl-12 font-[family-name:var(--font-display)] text-xl italic text-[#2B2330]/85 sm:pl-16">
+          <p className="mt-14 pl-8 font-[family-name:var(--font-display)] text-xl italic text-[#2B2330]/85 sm:pl-10">
             Healthy skin becomes measurable.
           </p>
         </div>
