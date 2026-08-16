@@ -64,7 +64,8 @@ const WHY_CHOOSE = [
 ];
 
 const INTRO_HOLD = 0.015;
-const SECTION_SCROLL_VH = WHY_CHOOSE.length * 0.82 + 1;
+const SECTION_SCROLL_VH = WHY_CHOOSE.length * 0.3 + 1.05;
+const ANIMATION_SCROLL_VH = Math.max(1.8, SECTION_SCROLL_VH - 0.8);
 const SECTION_HEIGHT = `${SECTION_SCROLL_VH * 100}dvh`;
 
 const WhyCard = forwardRef(function WhyCard({ item, variant = "stack" }, ref) {
@@ -83,8 +84,6 @@ const WhyCard = forwardRef(function WhyCard({ item, variant = "stack" }, ref) {
         backgroundColor: bg,
         color: text,
         willChange: variant === "stack" ? "transform, opacity" : undefined,
-        opacity: variant === "stack" ? 0 : 1,
-        transform: variant === "stack" ? "translate3d(0,125%,0) scale(0.94) rotate(0deg)" : undefined,
       }}
     >
       <div className="relative z-10 flex max-w-2xl flex-col items-center">
@@ -159,17 +158,25 @@ function WhyChooseStack() {
       const readProgress = () => {
         if (!sectionRef.current) return 0;
         
-        const sectionRect = sectionRef.current.getBoundingClientRect();
-        const sectionTop = sectionRect.top;
+        const sectionTop = sectionRef.current.getBoundingClientRect().top;
         const windowHeight = window.innerHeight;
         
-        // Animation starts when the section enters the viewport
-        // Progress = 0 when section is at bottom of viewport, Progress = 1 when scrolled past
-        const triggerStart = windowHeight; // Section enters from bottom
-        const animationEnd = -windowHeight * SECTION_SCROLL_VH; // After scrolling through all cards
+        // We want animation to:
+        // - Start only after the sticky background has fully filled the viewport
+        // - Reach completion (progress 1) after scrolling through the content
         
-        // Calculate progress based on section position relative to viewport
-        const progress = (triggerStart - sectionTop) / (triggerStart - animationEnd);
+        // When the section top reaches the top of the viewport, the image is fully in place.
+        const triggerPoint = 0;
+        
+        // Keep the reveal paced across most of the sticky span so we don't
+        // leave a long dead-scroll tail after the last card settles.
+        const animationDuration = windowHeight * ANIMATION_SCROLL_VH;
+        
+        // How far past the trigger point have we scrolled?
+        const scrollDistance = triggerPoint - sectionTop;
+        
+        // Progress is how far we've scrolled relative to animation duration
+        const progress = scrollDistance / animationDuration;
         
         return gsap.utils.clamp(0, 1, progress);
       };
@@ -241,7 +248,7 @@ function WhyChooseStack() {
             ))}
           </div>
 
-          <div className="relative z-10 h-full w-full">
+          <div className="relative z-50 h-full w-full pointer-events-auto">
             {WHY_CHOOSE.map((item, i) => (
               <WhyCard
                 key={item.title}
