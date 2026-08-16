@@ -30,7 +30,6 @@ const mono = Space_Grotesk({
 const LINKS = [
   { label: "About", href: "#about" },
   { label: "Technology", href: "#technology" },
-  { label: "How It Works", href: "#how-it-works" },
   { label: "Products", href: "#products" },
   { label: "Contact", href: "#contact" },
 ];

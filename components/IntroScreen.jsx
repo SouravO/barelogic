@@ -237,7 +237,7 @@ export default function IntroScreen({ onComplete }) {
         ref={subtitleRef}
         className="z-10 mt-16 mb-4 text-[9px] font-medium tracking-[0.25em] text-[#FAF5EE]/70 uppercase sm:text-[10px] md:text-[11px]"
       >
-        Music at your doorstep
+        
       </div>
 
       {/* Progress Track & Counter */}

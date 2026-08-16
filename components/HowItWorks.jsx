@@ -63,7 +63,7 @@ export default function HowItWorks() {
         scrollTrigger: {
           trigger: wrapperRef.current,
           start: "top top",
-          end: "bottom bottom",
+          end: () => `+=${window.innerHeight * 4.5}`,
           scrub: 1,
           pin: pinRef.current,
           anticipatePin: 1,
@@ -79,11 +79,19 @@ export default function HowItWorks() {
       tl.to(lineRef.current, { scaleY: 1, ease: "none", duration: 1 }, 0);
     }, wrapperRef);
 
-    return () => ctx.revert();
+    let cancelled = false;
+    document.fonts?.ready?.then(() => {
+      if (!cancelled) ScrollTrigger.refresh();
+    });
+
+    return () => {
+      cancelled = true;
+      ctx.revert();
+    };
   }, []);
 
   return (
-    <section id="how-it-works" ref={wrapperRef} className="relative h-[380dvh] w-full motion-reduce:h-auto">
+    <section id="how-it-works" ref={wrapperRef} className="relative h-[500dvh] w-full motion-reduce:h-auto">
       <div
         ref={pinRef}
         className={`${display.variable} ${mono.variable} relative flex h-[100dvh] w-full items-center overflow-hidden bg-[#FAF5EE] px-6 motion-reduce:h-auto motion-reduce:py-24`}

@@ -500,25 +500,209 @@ function OurApproach() {
 
 /* ------------------------------------------------------------------ */
 /* Section 3 — Mission statement                                       */
+/* Pins once it reaches the CENTER of the viewport, then each phrase   */
+/* is dialed from faint to fully readable one at a time as the user    */
+/* keeps scrolling. Background decoration (dot-grid, squares, rings,   */
+/* particles) is full-bleed — sized to the viewport width via the      */
+/* left-1/2 + w-screen + -translate-x-1/2 trick, NOT the page's        */
+/* max-w-4xl content column — and the stage is min-h-screen so it      */
+/* covers the entire visible viewport top-to-bottom while pinned.      */
 /* ------------------------------------------------------------------ */
+
+// Phrase-by-phrase breakdown of the mission line, revealed in sequence.
+const VISION_LINES = [
+  "To become India\u2019s most trusted ",
+  "personalized skincare company ",
+  "by combining technology, science, ",
+  "and skincare into one seamless experience.",
+];
+
+// Small ambient dots — deterministic (no Math.random) so SSR/CSR markup matches.
+// Spread across the full viewport now that the layer is full-bleed.
+const VISION_PARTICLES = Array.from({ length: 20 }, (_, i) => ({
+  id: i,
+  top: `${(i * 23 + 5) % 94}%`,
+  left: `${(i * 41 + 7) % 98}%`,
+  size: i % 4 === 0 ? 6 : i % 3 === 0 ? 4 : 2.5,
+}));
+
+// Larger decorative outlines (squares + rings) that drift slowly for depth.
+// Positions run edge-to-edge since the wrapper is now viewport-wide.
+const VISION_SHAPES = [
+  { type: "square", top: "8%", left: "5%", size: 46, rotate: 12, duration: 9 },
+  { type: "ring", top: "68%", left: "3%", size: 64, rotate: -8, duration: 11 },
+  { type: "square", top: "14%", left: "93%", size: 34, rotate: -18, duration: 8 },
+  { type: "ring", top: "74%", left: "94%", size: 52, rotate: 20, duration: 10 },
+  { type: "square", top: "42%", left: "1%", size: 22, rotate: 45, duration: 7 },
+  { type: "ring", top: "4%", left: "48%", size: 30, rotate: 0, duration: 12 },
+  { type: "square", top: "90%", left: "48%", size: 26, rotate: -30, duration: 9.5 },
+  { type: "ring", top: "92%", left: "22%", size: 40, rotate: 10, duration: 10.5 },
+  { type: "square", top: "28%", left: "97%", size: 28, rotate: 8, duration: 8.5 },
+];
+
 function OurMission() {
+  const stageRef = useRef(null);
+  const textRef = useRef(null);
+  const particlesRef = useRef(null);
+  const shapesRef = useRef(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      const mm = gsap.matchMedia();
+
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        const lines = gsap.utils.toArray("[data-vision-line]", textRef.current);
+        const particles = gsap.utils.toArray("[data-vision-particle]", particlesRef.current);
+        const shapes = gsap.utils.toArray("[data-vision-shape]", shapesRef.current);
+
+        /* ---- Baseline: text present but faint, not yet "readable" ---- */
+        gsap.set(lines, { opacity: 0.14 });
+
+        /* ---- Ambient particles drifting gently behind the text ---- */
+        particles.forEach((el, i) => {
+          gsap.to(el, {
+            y: i % 2 === 0 ? "+=24" : "-=24",
+            x: i % 3 === 0 ? "+=16" : "-=16",
+            opacity: i % 2 === 0 ? 0.55 : 0.22,
+            duration: 6 + (i % 5),
+            ease: "sine.inOut",
+            repeat: -1,
+            yoyo: true,
+            delay: i * 0.3,
+          });
+        });
+
+        /* ---- Larger square/ring outlines, slow drift + rotation ---- */
+        shapes.forEach((el, i) => {
+          const s = VISION_SHAPES[i];
+          gsap.to(el, {
+            y: i % 2 === 0 ? "+=18" : "-=18",
+            x: i % 2 === 0 ? "-=12" : "+=12",
+            rotate: `+=${i % 2 === 0 ? 20 : -20}`,
+            duration: s.duration,
+            ease: "sine.inOut",
+            repeat: -1,
+            yoyo: true,
+            delay: i * 0.35,
+          });
+        });
+
+        /* ---- Pin once the section reaches the CENTER of the screen ---- */
+        // start: "center center" means pinning only kicks in when the
+        // section's own center lines up with the viewport's center —
+        // not the moment its top edge appears. Scrolling further scrubs
+        // the one-by-one phrase reveal while the section holds in place.
+        if (stageRef.current && lines.length) {
+          const tl = gsap.timeline({
+            scrollTrigger: {
+              trigger: stageRef.current,
+              start: "center center",
+              end: `+=${lines.length * 70}%`,
+              scrub: 0.6,
+              pin: true,
+              anticipatePin: 1,
+            },
+          });
+
+          lines.forEach((line, i) => {
+            tl.to(line, { opacity: 1, duration: 1, ease: "none" }, i);
+          });
+        }
+      });
+
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set("[data-vision-line]", { clearProps: "all", opacity: 1 });
+      });
+    }, stageRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
     <div
+      ref={stageRef}
       data-stage
-      className="flex min-h-[60vh] flex-col justify-center border-b border-[#2B2330]/10 py-16 text-center md:py-24"
+      className="relative flex min-h-screen flex-col justify-center border-b border-[#2B2330]/10 py-16 text-center md:py-24"
     >
-      <h2
-        data-reveal
-        className="mx-auto max-w-3xl font-[family-name:var(--font-display)] text-3xl font-medium italic leading-[1.3] sm:text-4xl md:text-5xl"
-        style={{
-          backgroundImage: GRADIENT,
-          WebkitBackgroundClip: "text",
-          backgroundClip: "text",
-          color: "transparent",
-        }}
+      {/* Subtle dot-grid texture — full-bleed to the true viewport width, */}
+      {/* not the page's max-w-4xl content column. */}
+      <svg
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-0 left-1/2 h-full w-screen -translate-x-1/2 opacity-[0.4]"
       >
-        To become India&rsquo;s most trusted personalized skincare company by combining
-        technology, science, and skincare into one seamless experience.
+        <defs>
+          <pattern id="vision-dot-grid" width="34" height="34" patternUnits="userSpaceOnUse">
+            <circle cx="1.5" cy="1.5" r="1.5" fill="#8C5A82" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#vision-dot-grid)" />
+      </svg>
+
+      {/* Drifting square/ring outlines — same full-bleed treatment */}
+      <div
+        ref={shapesRef}
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-0 left-1/2 w-screen -translate-x-1/2"
+      >
+        {VISION_SHAPES.map((s, i) => (
+          <span
+            key={i}
+            data-vision-shape
+            className={`absolute border border-[#8C5A82]/25 ${
+              s.type === "ring" ? "rounded-full" : "rounded-md"
+            }`}
+            style={{
+              top: s.top,
+              left: s.left,
+              width: s.size,
+              height: s.size,
+              transform: `rotate(${s.rotate}deg)`,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Small ambient particle dots — same full-bleed treatment */}
+      <div
+        ref={particlesRef}
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-0 left-1/2 w-screen -translate-x-1/2"
+      >
+        {VISION_PARTICLES.map((p) => (
+          <span
+            key={p.id}
+            data-vision-particle
+            className="absolute rounded-full"
+            style={{
+              top: p.top,
+              left: p.left,
+              width: p.size,
+              height: p.size,
+              background: p.id % 2 === 0 ? "#C97AA0" : "#8C5A82",
+              opacity: 0.35,
+            }}
+          />
+        ))}
+      </div>
+
+      <h2
+        ref={textRef}
+        className="relative z-10 mx-auto max-w-4xl px-4 font-[family-name:var(--font-display)] text-4xl font-medium italic leading-[1.25] sm:text-5xl md:text-6xl lg:text-7xl"
+      >
+        {VISION_LINES.map((line, i) => (
+          <span
+            key={i}
+            data-vision-line
+            style={{
+              backgroundImage: GRADIENT,
+              WebkitBackgroundClip: "text",
+              backgroundClip: "text",
+              color: "transparent",
+            }}
+          >
+            {line}
+          </span>
+        ))}
       </h2>
     </div>
   );
@@ -572,6 +756,11 @@ function SkinUniqueness() {
 /* section content here, add it to the relevant function instead.      */
 /* OurPhilosophy now owns its own additional canvas timeline; it       */
 /* still exposes data-stage / data-reveal so this loop keeps working.  */
+/* OurMission now owns its own pin + reveal timeline; it still exposes */
+/* data-stage, but no longer uses data-reveal, so this loop no-ops     */
+/* harmlessly for that section. Its full-bleed background layers rely  */
+/* on this <section>'s own overflow-hidden to stay clipped exactly at  */
+/* the true viewport edges — don't remove that from the outer section. */
 /* ------------------------------------------------------------------ */
 export default function About() {
   const sectionRef = useRef(null);
@@ -642,11 +831,18 @@ export default function About() {
       className={`${display.variable} ${mono.variable} relative overflow-hidden bg-[#FAF5EE] px-6 py-28 md:py-36`}
     >
       <div
-        ref={glowRef}
-        className="pointer-events-none absolute left-1/2 top-0 h-[70vmax] w-[70vmax] -translate-x-1/2 -translate-y-1/3 rounded-full opacity-0 blur-[120px]"
+        className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(circle, rgba(201,122,160,0.20) 0%, rgba(140,90,130,0.10) 40%, rgba(250,245,238,0) 70%)",
+            "radial-gradient(circle at 68% 22%, rgba(233,185,204,0.34) 0%, rgba(233,185,204,0.18) 22%, rgba(233,185,204,0.06) 44%, rgba(250,245,238,0) 70%), radial-gradient(circle at 18% 82%, rgba(233,185,204,0.14) 0%, rgba(233,185,204,0.06) 18%, rgba(250,245,238,0) 52%)",
+        }}
+      />
+      <div
+        ref={glowRef}
+        className="pointer-events-none absolute left-1/2 top-0 z-0 h-[70vmax] w-[70vmax] -translate-x-1/2 -translate-y-1/3 rounded-full opacity-0 blur-[120px]"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(233,185,204,0.24) 0%, rgba(201,122,160,0.12) 40%, rgba(250,245,238,0) 72%)",
         }}
       />
       <div className="relative z-10 mx-auto max-w-4xl">
