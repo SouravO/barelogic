@@ -47,12 +47,12 @@ export default function Hero() {
           y: 14,
         });
 
-        gsap.set(img1Ref.current, { opacity: 0, scale: 0.7, x: -260, y: -200, rotate: -35 });
-        gsap.set(img2Ref.current, { opacity: 0, scale: 0.7, x: 260, y: -200, rotate: 30 });
-        gsap.set(img3Ref.current, { opacity: 0, scale: 0.7, x: -260, y: 200, rotate: -38 });
-        gsap.set(img4Ref.current, { opacity: 0, scale: 0.7, x: 260, y: 200, rotate: 33 });
+        gsap.set(img1Ref.current, { opacity: 0, scale: 0.7, x: -260, y: -200, rotation: -35 });
+        gsap.set(img2Ref.current, { opacity: 0, scale: 0.7, x: 260, y: -200, rotation: 30 });
+        gsap.set(img3Ref.current, { opacity: 0, scale: 0.7, x: -260, y: 200, rotation: -38 });
+        gsap.set(img4Ref.current, { opacity: 0, scale: 0.7, x: 260, y: 200, rotation: 33 });
 
-        gsap.set(ringRef.current, { opacity: 0, scale: 0.88, rotate: -10 });
+        gsap.set(ringRef.current, { opacity: 0, scale: 0.88, rotation: -10 });
         gsap.set(glowRef.current, { opacity: 0 });
       });
 
@@ -75,10 +75,10 @@ export default function Hero() {
           }
         );
         // Restore each image's resting tilt since it's no longer set via inline style.
-        gsap.set(img1Ref.current, { rotate: 15 });
-        gsap.set(img2Ref.current, { rotate: -15 });
-        gsap.set(img3Ref.current, { rotate: 12 });
-        gsap.set(img4Ref.current, { rotate: -12 });
+        gsap.set(img1Ref.current, { rotation: 15 });
+        gsap.set(img2Ref.current, { rotation: -15 });
+        gsap.set(img3Ref.current, { rotation: 12 });
+        gsap.set(img4Ref.current, { rotation: -12 });
       });
     }, rootRef);
 
@@ -144,7 +144,7 @@ export default function Hero() {
           delay: 2,
         });
 
-        const ringRotateTo = gsap.quickTo(ringRef.current, "rotate", { duration: 1.3, ease: "power3.out" });
+        const ringRotateTo = gsap.quickTo(ringRef.current, "rotation", { duration: 1.3, ease: "power3.out" });
         const glowXTo = gsap.quickTo(glowRef.current, "xPercent", { duration: 1.6, ease: "power2.out" });
         const glowYTo = gsap.quickTo(glowRef.current, "yPercent", { duration: 1.6, ease: "power2.out" });
 
@@ -267,12 +267,10 @@ export default function Hero() {
 
         <div ref={subRef} className="relative z-10 mt-7 max-w-2xl px-6 text-center">
           <p className="font-[family-name:var(--font-mono)] text-base leading-relaxed text-[#2B2330]/75 sm:text-lg">
-            Every skin tells different story. Different needs. Different concerns. Different care.
+            Every skin has its own story: different needs, different concerns, different care.
           </p>
           <p className="mt-4 font-[family-name:var(--font-mono)] text-base leading-relaxed text-[#2B2330]/75 sm:text-lg">
-            KYS believes skincare should never be one-size-fits-all. Before recommending products, we
-            first understand your skin using advanced skin analysis technology. Because healthy skin
-            begins with knowing your skin.
+            KYS never takes a one-size-fits-all approach. We analyze your skin first, then recommend, because healthy skin starts with knowing your skin.
           </p>
         </div>
 

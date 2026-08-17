@@ -15,8 +15,8 @@ export default function Home() {
       <main>
         <Hero />
         <About />
-        <Technology />
         <Cards />
+        <Technology />
         <Services />
         <WhoIsKys />
         <Contact />

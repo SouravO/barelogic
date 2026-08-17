@@ -73,7 +73,7 @@ const WhyCard = forwardRef(function WhyCard({ item, variant = "stack" }, ref) {
 
   const shape =
     variant === "stack"
-      ? "absolute inset-0 m-auto h-[70dvh] w-[90vw] sm:h-[74dvh] sm:w-[85vw] md:h-[76dvh] md:w-[78vw] lg:max-w-[1200px]"
+      ? "absolute inset-0 m-auto h-[50dvh] w-[90vw] sm:h-[55dvh] sm:w-[85vw] md:h-[60dvh] md:w-[78vw] lg:max-w-[900px]"
       : "relative mx-auto h-auto min-h-[420px] w-full max-w-2xl";
 
   return (
