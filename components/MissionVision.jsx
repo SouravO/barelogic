@@ -190,17 +190,6 @@ export default function MissionVision() {
           <p className="mt-6 max-w-lg mx-auto font-[family-name:var(--font-mono)] text-sm leading-relaxed text-[#2B2330]/75 sm:text-base">
             Modern skincare has become confusing. Thousands of products, thousands of ingredients, and thousands of opinions. But only one thing truly matters: understanding your skin.
           </p>
-
-          <svg
-            className="hidden lg:block pointer-events-none absolute -top-2 right-0 h-[200px] w-[320px] text-[#6E3F63]/35"
-            viewBox="0 0 300 200"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.2"
-          >
-            <path d="M 10 20 C 150 -30, 290 50, 240 180" strokeDasharray="0" />
-            <path d="M 235 170 L 240 180 L 248 172" fill="none" strokeWidth="1.5" />
-          </svg>
         </div>
       </div>
 
@@ -219,7 +208,7 @@ export default function MissionVision() {
         </svg>
 
         <div
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[82%] sm:w-[65%] lg:w-[48%] aspect-[4/5] overflow-hidden z-0 bg-[#F1E9E0] drop-shadow-[0_22px_38px_rgba(43,35,48,0.32)]"
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[82%] sm:w-[65%] lg:w-[48%] aspect-[4/5] z-0 bg-[#F1E9E0] drop-shadow-[0_22px_38px_rgba(43,35,48,0.32)]"
           style={{ clipPath: `url(#${maskId})` }}
         >
           <div
