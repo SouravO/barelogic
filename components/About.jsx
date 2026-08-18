@@ -100,7 +100,7 @@ export default function About() {
     <section
       id="about"
       ref={sectionRef}
-      className={`${display.variable} ${mono.variable} relative overflow-hidden bg-[#FAF5EE] px-6 py-28 md:py-36`}
+      className={`${display.variable} ${mono.variable} relative overflow-hidden bg-[#FAF5EE] px-6 pb-28 pt-0 md:pb-36`}
     >
       <div
         className="pointer-events-none absolute inset-0"
@@ -118,8 +118,8 @@ export default function About() {
         }}
       />
       <div className="relative z-10 mx-auto max-w-4xl">
-        <SkinType />
         <MissionVision />
+        <SkinType />
         <EveryFace />
       </div>
     </section>

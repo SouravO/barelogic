@@ -54,6 +54,11 @@ export default function MissionVision() {
   const containerRef = useRef(null);
   const parallaxImgRef = useRef(null);
 
+  // Title "KYS" -> "KNOW YOUR SKIN" expand refs
+  const titleWrapRef = useRef(null);
+  const kysTextRef = useRef(null);
+  const fullTextRef = useRef(null);
+
   // Unique id for the clip-path so multiple instances of this section never collide
   const rawId = useId();
   const maskId = `kys-mv-mask-${rawId.replace(/:/g, "")}`;
@@ -102,6 +107,47 @@ export default function MissionVision() {
           }
         );
       });
+
+      // Title entrance — shows as "KYS" first, then suddenly expands into
+      // the full "KNOW YOUR SKIN". Fires once the section has mostly
+      // scrolled open (top nearing the top of the viewport), not the
+      // moment it starts entering. Plays once.
+      const kys = kysTextRef.current;
+      const full = fullTextRef.current;
+
+      if (kys && full) {
+        const prefersReducedMotion =
+          typeof window !== "undefined" &&
+          window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        if (prefersReducedMotion) {
+          gsap.set(kys, { opacity: 0 });
+          gsap.set(full, { opacity: 1, scale: 1 });
+        } else {
+          gsap.set(kys, { opacity: 1, scale: 1 });
+          gsap.set(full, { opacity: 0, scale: 0.55 });
+
+          const playTitleExpand = () => {
+            gsap
+              .timeline({ delay: 0.35 })
+              .to(kys, { opacity: 0, scale: 1.2, duration: 0.35, ease: "power2.in" }, 0)
+              .to(full, { opacity: 1, scale: 1, duration: 0.7, ease: "back.out(1.6)" }, 0.08);
+          };
+
+          const rect = containerRef.current.getBoundingClientRect();
+          if (rect.top <= window.innerHeight * 0.15) {
+            // Section is already mostly open on load — play immediately.
+            playTitleExpand();
+          } else {
+            ScrollTrigger.create({
+              trigger: containerRef.current,
+              start: "top 15%",
+              once: true,
+              onEnter: playTitleExpand,
+            });
+          }
+        }
+      }
     }, containerRef);
 
     return () => ctx.revert();
@@ -110,45 +156,51 @@ export default function MissionVision() {
   return (
     <section
       ref={containerRef}
-      className={`${display.variable} ${mono.variable} relative left-1/2 min-h-screen w-screen -translate-x-1/2 overflow-hidden bg-[#FAF5EE] px-4 py-16 text-[#2B2330] sm:px-8 lg:px-16`}
+      className={`${display.variable} ${mono.variable} relative left-1/2 min-h-screen w-screen -translate-x-1/2 overflow-hidden bg-[#FAF5EE] px-4 pt-0 pb-10 text-[#2B2330] sm:px-8 lg:px-16 lg:pb-16`}
     >
-      <div
-        className="pointer-events-none absolute inset-0 z-0"
-        style={{
-          background:
-            "radial-gradient(circle at 18% 20%, rgba(233,185,204,0.18) 0%, rgba(233,185,204,0.08) 20%, rgba(250,245,238,0) 48%), radial-gradient(circle at 80% 12%, rgba(201,122,160,0.12) 0%, rgba(201,122,160,0.06) 18%, rgba(250,245,238,0) 42%)",
-        }}
-      />
-      <div className="max-w-7xl mx-auto relative z-10 mb-6 lg:mb-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start relative">
-          <div className="lg:col-span-8">
-            <h1 className="font-[family-name:var(--font-display)] text-4xl font-semibold italic leading-[1.08] tracking-[-0.05em] sm:text-6xl lg:text-7xl">
-              <span className="bg-gradient-to-r from-[#3E1F3D] via-[#6E3F63] to-[#A45F86] bg-clip-text text-transparent">
+      <div className="max-w-7xl mx-auto relative z-10 mb-1 lg:mb-2 pt-14 sm:pt-16 lg:pt-24">
+        <div className="relative flex flex-col items-center text-center">
+          <h1 className="font-[family-name:var(--font-display)] text-4xl font-semibold italic leading-[1.08] tracking-[-0.05em] sm:text-6xl lg:text-7xl">
+            <span ref={titleWrapRef} className="relative inline-block">
+              {/* invisible spacer reserves the full "KNOW YOUR SKIN" width so nothing shifts as it expands */}
+              <span aria-hidden="true" className="invisible whitespace-nowrap">
                 KNOW YOUR SKIN
               </span>
-              <br />
-              <span className="mt-2 block font-[family-name:var(--font-display)] text-3xl font-semibold italic leading-[1.12] text-[#2B2330]/90 sm:text-5xl lg:text-6xl">
-                before you treat it.
+
+              <span
+                ref={kysTextRef}
+                className="absolute inset-0 whitespace-nowrap text-center bg-gradient-to-r from-[#3E1F3D] via-[#6E3F63] to-[#A45F86] bg-clip-text text-transparent"
+              >
+                KYS
               </span>
-            </h1>
 
-            <p className="mt-6 max-w-lg font-[family-name:var(--font-mono)] text-sm leading-relaxed text-[#2B2330]/75 sm:text-base">
-              Modern skincare has become confusing. Thousands of products, thousands of ingredients, and thousands of opinions. But only one thing truly matters: understanding your skin.
-            </p>
-          </div>
+              <span
+                ref={fullTextRef}
+                className="absolute inset-0 whitespace-nowrap text-center bg-gradient-to-r from-[#3E1F3D] via-[#6E3F63] to-[#A45F86] bg-clip-text text-transparent"
+              >
+                KNOW YOUR SKIN
+              </span>
+            </span>
+            <br />
+            <span className="mt-2 block font-[family-name:var(--font-display)] text-3xl font-semibold italic leading-[1.12] text-[#2B2330]/90 sm:text-5xl lg:text-6xl">
+              before you treat it.
+            </span>
+          </h1>
 
-          <div className="hidden lg:block lg:col-span-4 relative h-36">
-            <svg
-              className="absolute -top-2 -left-8 h-[200px] w-[320px] pointer-events-none text-[#6E3F63]/35"
-              viewBox="0 0 300 200"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.2"
-            >
-              <path d="M 10 20 C 150 -30, 290 50, 240 180" strokeDasharray="0" />
-              <path d="M 235 170 L 240 180 L 248 172" fill="none" strokeWidth="1.5" />
-            </svg>
-          </div>
+          <p className="mt-6 max-w-lg mx-auto font-[family-name:var(--font-mono)] text-sm leading-relaxed text-[#2B2330]/75 sm:text-base">
+            Modern skincare has become confusing. Thousands of products, thousands of ingredients, and thousands of opinions. But only one thing truly matters: understanding your skin.
+          </p>
+
+          <svg
+            className="hidden lg:block pointer-events-none absolute -top-2 right-0 h-[200px] w-[320px] text-[#6E3F63]/35"
+            viewBox="0 0 300 200"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.2"
+          >
+            <path d="M 10 20 C 150 -30, 290 50, 240 180" strokeDasharray="0" />
+            <path d="M 235 170 L 240 180 L 248 172" fill="none" strokeWidth="1.5" />
+          </svg>
         </div>
       </div>
 
@@ -186,7 +238,7 @@ export default function MissionVision() {
         <div className="relative z-10 flex w-full flex-col gap-5 py-6 md:contents">
           <div
             data-floating-card
-            className="w-full z-10 md:absolute md:left-0 lg:left-2 md:top-[3%] md:w-auto md:max-w-[16.5rem] lg:max-w-[18.5rem] rounded-[1.5rem] border border-[#A45F86]/15 bg-[linear-gradient(180deg,#FFFDFB_0%,#FDF5F8_100%)] p-3.5 shadow-[0_18px_40px_-25px_rgba(89,46,86,0.25)] backdrop-blur-md transition-shadow duration-300 hover:shadow-[0_22px_45px_-25px_rgba(89,46,86,0.35)] sm:p-4"
+            className="w-full z-10 md:absolute md:left-[8%] lg:left-[10%] md:top-[4%] md:w-auto md:max-w-[16.5rem] lg:max-w-[18.5rem] rounded-[1.5rem] border border-[#A45F86]/15 bg-[linear-gradient(180deg,#FFFDFB_0%,#FDF5F8_100%)] p-3.5 shadow-[0_18px_40px_-25px_rgba(89,46,86,0.25)] backdrop-blur-md transition-shadow duration-300 hover:shadow-[0_22px_45px_-25px_rgba(89,46,86,0.35)] sm:p-4"
           >
             <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full border border-[#A45F86]/20 bg-gradient-to-br from-[#F8E9F0] to-[#F4DDE9] shadow-sm">
               <TargetIcon />
@@ -240,7 +292,7 @@ export default function MissionVision() {
 
           <div
             data-floating-card
-            className="w-full z-10 md:absolute md:right-0 lg:right-2 md:bottom-[3%] md:w-auto md:max-w-[16.5rem] lg:max-w-[18.5rem] rounded-[1.5rem] border border-[#A45F86]/15 bg-[linear-gradient(180deg,#FFFDFB_0%,#FDF5F8_100%)] p-3.5 shadow-[0_18px_40px_-25px_rgba(89,46,86,0.25)] backdrop-blur-md transition-shadow duration-300 hover:shadow-[0_22px_45px_-25px_rgba(89,46,86,0.35)] sm:p-4"
+            className="w-full z-10 md:absolute md:right-[8%] lg:right-[10%] md:bottom-[7%] md:w-auto md:max-w-[16.5rem] lg:max-w-[18.5rem] rounded-[1.5rem] border border-[#A45F86]/15 bg-[linear-gradient(180deg,#FFFDFB_0%,#FDF5F8_100%)] p-3.5 shadow-[0_18px_40px_-25px_rgba(89,46,86,0.25)] backdrop-blur-md transition-shadow duration-300 hover:shadow-[0_22px_45px_-25px_rgba(89,46,86,0.35)] sm:p-4"
           >
             <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full border border-[#A45F86]/20 bg-gradient-to-br from-[#F8E9F0] to-[#F4DDE9] shadow-sm">
               <FlaskIcon />
