@@ -72,7 +72,7 @@ export default function SkinType() {
   const readoutWrapRef = useRef(null);
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
+    const ctx = gsap.context((self) => {
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
@@ -130,7 +130,7 @@ export default function SkinType() {
 
           const travel = track.offsetHeight;
 
-          ctx.add(() => {
+          self.add(() => {
             gsap
               .timeline()
               .set([line, glowBand], { y: 0 })

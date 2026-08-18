@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useId } from "react";
 import { Bodoni_Moda, Space_Grotesk } from "next/font/google";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -54,13 +54,17 @@ export default function MissionVision() {
   const containerRef = useRef(null);
   const parallaxImgRef = useRef(null);
 
+  // Unique id for the clip-path so multiple instances of this section never collide
+  const rawId = useId();
+  const maskId = `kys-mv-mask-${rawId.replace(/:/g, "")}`;
+
   useEffect(() => {
     const ctx = gsap.context(() => {
       // Parallax movement for the central image inside the mask
       if (parallaxImgRef.current && containerRef.current) {
         gsap.fromTo(
           parallaxImgRef.current,
-          { yPercent: -14, scale: 1.15 },
+          { yPercent: -14, scale: 1.22 },
           {
             yPercent: 14,
             ease: "none",
@@ -74,15 +78,20 @@ export default function MissionVision() {
         );
       }
 
-      // Smooth offset scrolling for individual floating cards
+      // Cards stay fully visible at all times — no opacity/fade. They rise
+      // upward from a lower starting offset, driven by the SAME container
+      // scrollTrigger range as the image above, so cards + image move
+      // together as one continuous scroll-linked parallax system rather
+      // than a separate "reveal" animation. Each card starts a bit further
+      // below than the last for a layered, non-uniform feel.
       const cards = gsap.utils.toArray("[data-floating-card]", containerRef.current);
       cards.forEach((card, index) => {
-        const offset = (index % 2 === 0 ? 1 : -1) * (20 + index * 8);
+        const startY = 110 + index * 18;
         gsap.fromTo(
           card,
-          { y: offset },
+          { y: startY },
           {
-            y: -offset,
+            y: -startY * 0.18,
             ease: "none",
             scrollTrigger: {
               trigger: containerRef.current,
@@ -144,85 +153,105 @@ export default function MissionVision() {
       </div>
 
       <div className="max-w-7xl mx-auto relative min-h-[660px] lg:min-h-[760px] flex items-center justify-center">
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[82%] sm:w-[65%] lg:w-[48%] aspect-[4/5] rounded-[45%_55%_60%_40%/50%_45%_55%_50%] overflow-hidden shadow-[0_24px_45px_-28px_rgba(43,35,48,0.55)] z-0 border border-[#2B2330]/10 bg-[#F1E9E0]">
+        {/* Hidden clip-path definition — tall, steeply-tilted oval mask. Computed in true
+            physical proportions (accounting for the box's 4:5 aspect ratio) so the rotation
+            doesn't skew, then mapped into objectBoundingBox units. Major axis is longer and
+            the tilt steeper than before, matching the reference — it intentionally overshoots
+            the box at the top-right and bottom-left corners. */}
+        <svg width="0" height="0" className="pointer-events-none absolute" aria-hidden="true">
+          <defs>
+            <clipPath id={maskId} clipPathUnits="objectBoundingBox">
+              <path d="M 1.0056 0.1606 C 1.1476 0.2960, 1.0364 0.5577, 0.7571 0.7451 C 0.4778 0.9326, 0.1365 0.9748, -0.0056 0.8394 C -0.1476 0.7040, -0.0364 0.4423, 0.2429 0.2549 C 0.5222 0.0674, 0.8635 0.0252, 1.0056 0.1606 Z" />
+            </clipPath>
+          </defs>
+        </svg>
+
+        <div
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[82%] sm:w-[65%] lg:w-[48%] aspect-[4/5] overflow-hidden z-0 bg-[#F1E9E0] drop-shadow-[0_22px_38px_rgba(43,35,48,0.32)]"
+          style={{ clipPath: `url(#${maskId})` }}
+        >
           <div
             ref={parallaxImgRef}
-            className="absolute inset-0 h-[128%] w-full -top-[14%] bg-cover bg-center"
+            className="absolute inset-0 h-[134%] w-full -top-[17%] bg-cover bg-center"
             style={{
               backgroundImage: `url('/parallax.png')`,
             }}
           />
         </div>
 
-        <div className="relative z-10 grid w-full grid-cols-1 gap-5 my-auto py-6 md:grid-cols-2 lg:gap-10">
+        {/* Cards: flex-stacked on mobile, "contents" at md: so each card positions
+            itself directly against this section's relative container (same
+            coordinate space as the oval image above) instead of a grid column —
+            lets them hug the left/right edges and overlap the oval's corner. */}
+        <div className="relative z-10 flex w-full flex-col gap-5 py-6 md:contents">
           <div
             data-floating-card
-            className="md:col-span-1 md:max-w-[24.5rem] rounded-[1.5rem] border border-[#A45F86]/15 bg-[linear-gradient(180deg,#FFFDFB_0%,#FDF5F8_100%)] p-4 shadow-[0_18px_40px_-25px_rgba(89,46,86,0.25)] backdrop-blur-md transition-shadow duration-300 hover:shadow-[0_22px_45px_-25px_rgba(89,46,86,0.35)] sm:p-5"
+            className="w-full z-10 md:absolute md:left-0 lg:left-2 md:top-[3%] md:w-auto md:max-w-[16.5rem] lg:max-w-[18.5rem] rounded-[1.5rem] border border-[#A45F86]/15 bg-[linear-gradient(180deg,#FFFDFB_0%,#FDF5F8_100%)] p-3.5 shadow-[0_18px_40px_-25px_rgba(89,46,86,0.25)] backdrop-blur-md transition-shadow duration-300 hover:shadow-[0_22px_45px_-25px_rgba(89,46,86,0.35)] sm:p-4"
           >
-            <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-full border border-[#A45F86]/20 bg-gradient-to-br from-[#F8E9F0] to-[#F4DDE9] shadow-sm">
+            <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full border border-[#A45F86]/20 bg-gradient-to-br from-[#F8E9F0] to-[#F4DDE9] shadow-sm">
               <TargetIcon />
             </div>
             <span className="mb-2 block font-[family-name:var(--font-mono)] text-[10px] font-medium uppercase tracking-[0.22em] text-[#6E3F63]">
               Our Mission
             </span>
-            <h2 className="mb-2 font-[family-name:var(--font-display)] text-[clamp(1.6rem,2vw,2.2rem)] font-semibold italic leading-[1.05] text-[#2B2330]">
+            <h2 className="mb-2 font-[family-name:var(--font-display)] text-[clamp(1.3rem,1.6vw,1.75rem)] font-semibold italic leading-[1.05] text-[#2B2330]">
               Informed Skincare Decisions
             </h2>
-            <p className="font-[family-name:var(--font-mono)] text-[13px] leading-relaxed text-[#2B2330]/75">
+            <p className="font-[family-name:var(--font-mono)] text-[12.5px] leading-relaxed text-[#2B2330]/75">
               KYS exists to help people make informed skincare decisions through advanced skin diagnostics and personalized product recommendations.
             </p>
           </div>
 
           <div
             data-floating-card
-            className="md:col-span-1 md:col-start-2 md:ml-auto md:mt-12 md:max-w-[24.5rem] rounded-[1.5rem] border border-[#A45F86]/15 bg-[linear-gradient(180deg,#FFFDFB_0%,#FDF5F8_100%)] p-4 shadow-[0_18px_40px_-25px_rgba(89,46,86,0.25)] backdrop-blur-md transition-shadow duration-300 hover:shadow-[0_22px_45px_-25px_rgba(89,46,86,0.35)] sm:p-5"
+            className="w-full z-10 md:absolute md:right-0 lg:right-2 md:top-[15%] md:w-auto md:max-w-[16.5rem] lg:max-w-[18.5rem] rounded-[1.5rem] border border-[#A45F86]/15 bg-[linear-gradient(180deg,#FFFDFB_0%,#FDF5F8_100%)] p-3.5 shadow-[0_18px_40px_-25px_rgba(89,46,86,0.25)] backdrop-blur-md transition-shadow duration-300 hover:shadow-[0_22px_45px_-25px_rgba(89,46,86,0.35)] sm:p-4"
           >
-            <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-full border border-[#A45F86]/20 bg-gradient-to-br from-[#F8E9F0] to-[#F4DDE9] shadow-sm">
+            <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full border border-[#A45F86]/20 bg-gradient-to-br from-[#F8E9F0] to-[#F4DDE9] shadow-sm">
               <EyeIcon />
             </div>
             <span className="mb-2 block font-[family-name:var(--font-mono)] text-[10px] font-medium uppercase tracking-[0.22em] text-[#6E3F63]">
               Our Vision
             </span>
-            <h2 className="mb-2 font-[family-name:var(--font-display)] text-[clamp(1.6rem,2vw,2.2rem)] font-semibold italic leading-[1.05] text-[#2B2330]">
+            <h2 className="mb-2 font-[family-name:var(--font-display)] text-[clamp(1.3rem,1.6vw,1.75rem)] font-semibold italic leading-[1.05] text-[#2B2330]">
               Trusted Personalization
             </h2>
-            <p className="font-[family-name:var(--font-mono)] text-[13px] leading-relaxed text-[#2B2330]/75">
+            <p className="font-[family-name:var(--font-mono)] text-[12.5px] leading-relaxed text-[#2B2330]/75">
               To become India’s most trusted personalized skincare company by combining technology, science, and skincare into one seamless experience.
             </p>
           </div>
 
           <div
             data-floating-card
-            className="md:col-span-1 md:max-w-[24.5rem] rounded-[1.5rem] border border-[#A45F86]/15 bg-[linear-gradient(180deg,#FFFDFB_0%,#FDF5F8_100%)] p-4 shadow-[0_18px_40px_-25px_rgba(89,46,86,0.25)] backdrop-blur-md transition-shadow duration-300 hover:shadow-[0_22px_45px_-25px_rgba(89,46,86,0.35)] sm:p-5 md:-mt-4"
+            className="w-full z-10 md:absolute md:left-0 lg:left-2 md:bottom-[15%] md:w-auto md:max-w-[16.5rem] lg:max-w-[18.5rem] rounded-[1.5rem] border border-[#A45F86]/15 bg-[linear-gradient(180deg,#FFFDFB_0%,#FDF5F8_100%)] p-3.5 shadow-[0_18px_40px_-25px_rgba(89,46,86,0.25)] backdrop-blur-md transition-shadow duration-300 hover:shadow-[0_22px_45px_-25px_rgba(89,46,86,0.35)] sm:p-4"
           >
-            <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-full border border-[#A45F86]/20 bg-gradient-to-br from-[#F8E9F0] to-[#F4DDE9] shadow-sm">
+            <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full border border-[#A45F86]/20 bg-gradient-to-br from-[#F8E9F0] to-[#F4DDE9] shadow-sm">
               <MonitorIcon />
             </div>
             <span className="mb-2 block font-[family-name:var(--font-mono)] text-[10px] font-medium uppercase tracking-[0.22em] text-[#6E3F63]">
               Advanced Diagnostics
             </span>
-            <h2 className="mb-2 font-[family-name:var(--font-display)] text-[clamp(1.6rem,2vw,2.2rem)] font-semibold italic leading-[1.05] text-[#2B2330]">
+            <h2 className="mb-2 font-[family-name:var(--font-display)] text-[clamp(1.3rem,1.6vw,1.75rem)] font-semibold italic leading-[1.05] text-[#2B2330]">
               Advanced Skin Analysis
             </h2>
-            <p className="font-[family-name:var(--font-mono)] text-[13px] leading-relaxed text-[#2B2330]/75">
+            <p className="font-[family-name:var(--font-mono)] text-[12.5px] leading-relaxed text-[#2B2330]/75">
               Our advanced skin analysis machine provides detailed insights about your skin health before any product recommendation.
             </p>
           </div>
 
           <div
             data-floating-card
-            className="md:col-span-1 md:col-start-2 md:ml-auto md:mt-8 md:max-w-[24.5rem] rounded-[1.5rem] border border-[#A45F86]/15 bg-[linear-gradient(180deg,#FFFDFB_0%,#FDF5F8_100%)] p-4 shadow-[0_18px_40px_-25px_rgba(89,46,86,0.25)] backdrop-blur-md transition-shadow duration-300 hover:shadow-[0_22px_45px_-25px_rgba(89,46,86,0.35)] sm:p-5"
+            className="w-full z-10 md:absolute md:right-0 lg:right-2 md:bottom-[3%] md:w-auto md:max-w-[16.5rem] lg:max-w-[18.5rem] rounded-[1.5rem] border border-[#A45F86]/15 bg-[linear-gradient(180deg,#FFFDFB_0%,#FDF5F8_100%)] p-3.5 shadow-[0_18px_40px_-25px_rgba(89,46,86,0.25)] backdrop-blur-md transition-shadow duration-300 hover:shadow-[0_22px_45px_-25px_rgba(89,46,86,0.35)] sm:p-4"
           >
-            <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-full border border-[#A45F86]/20 bg-gradient-to-br from-[#F8E9F0] to-[#F4DDE9] shadow-sm">
+            <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full border border-[#A45F86]/20 bg-gradient-to-br from-[#F8E9F0] to-[#F4DDE9] shadow-sm">
               <FlaskIcon />
             </div>
             <span className="mb-2 block font-[family-name:var(--font-mono)] text-[10px] font-medium uppercase tracking-[0.22em] text-[#6E3F63]">
               Our Science
             </span>
-            <h2 className="mb-2 font-[family-name:var(--font-display)] text-[clamp(1.6rem,2vw,2.2rem)] font-semibold italic leading-[1.05] text-[#2B2330]">
+            <h2 className="mb-2 font-[family-name:var(--font-display)] text-[clamp(1.3rem,1.6vw,1.75rem)] font-semibold italic leading-[1.05] text-[#2B2330]">
               No Assumptions. Only Science.
             </h2>
-            <p className="font-[family-name:var(--font-mono)] text-[13px] leading-relaxed text-[#2B2330]/75">
+            <p className="font-[family-name:var(--font-mono)] text-[12.5px] leading-relaxed text-[#2B2330]/75">
               Don’t Guess. Know. Every skincare journey starts with one fundamental question: What does your skin actually need?
             </p>
           </div>
