@@ -110,8 +110,8 @@ export default function MissionVision() {
             "radial-gradient(circle at 18% 20%, rgba(233,185,204,0.18) 0%, rgba(233,185,204,0.08) 20%, rgba(250,245,238,0) 48%), radial-gradient(circle at 80% 12%, rgba(201,122,160,0.12) 0%, rgba(201,122,160,0.06) 18%, rgba(250,245,238,0) 42%)",
         }}
       />
-      <div className="max-w-7xl mx-auto relative z-10 mb-12 lg:mb-20">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative">
+      <div className="max-w-7xl mx-auto relative z-10 mb-6 lg:mb-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start relative">
           <div className="lg:col-span-8">
             <h1 className="font-[family-name:var(--font-display)] text-4xl font-semibold italic leading-[1.08] tracking-[-0.05em] sm:text-6xl lg:text-7xl">
               <span className="bg-gradient-to-r from-[#3E1F3D] via-[#6E3F63] to-[#A45F86] bg-clip-text text-transparent">
@@ -143,7 +143,7 @@ export default function MissionVision() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto relative min-h-[780px] lg:min-h-[880px] flex items-center justify-center">
+      <div className="max-w-7xl mx-auto relative min-h-[660px] lg:min-h-[760px] flex items-center justify-center">
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[82%] sm:w-[65%] lg:w-[48%] aspect-[4/5] rounded-[45%_55%_60%_40%/50%_45%_55%_50%] overflow-hidden shadow-[0_24px_45px_-28px_rgba(43,35,48,0.55)] z-0 border border-[#2B2330]/10 bg-[#F1E9E0]">
           <div
             ref={parallaxImgRef}
@@ -154,75 +154,75 @@ export default function MissionVision() {
           />
         </div>
 
-        <div className="relative z-10 grid w-full grid-cols-1 gap-6 my-auto py-8 md:grid-cols-2 lg:gap-16">
+        <div className="relative z-10 grid w-full grid-cols-1 gap-5 my-auto py-6 md:grid-cols-2 lg:gap-10">
           <div
             data-floating-card
-            className="md:col-span-1 md:max-w-md rounded-[1.5rem] border border-[#A45F86]/15 bg-[linear-gradient(180deg,#FFFDFB_0%,#FDF5F8_100%)] p-6 shadow-[0_18px_40px_-25px_rgba(89,46,86,0.25)] backdrop-blur-md transition-shadow duration-300 hover:shadow-[0_22px_45px_-25px_rgba(89,46,86,0.35)] sm:p-8"
+            className="md:col-span-1 md:max-w-[24.5rem] rounded-[1.5rem] border border-[#A45F86]/15 bg-[linear-gradient(180deg,#FFFDFB_0%,#FDF5F8_100%)] p-4 shadow-[0_18px_40px_-25px_rgba(89,46,86,0.25)] backdrop-blur-md transition-shadow duration-300 hover:shadow-[0_22px_45px_-25px_rgba(89,46,86,0.35)] sm:p-5"
           >
-            <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-full border border-[#A45F86]/20 bg-gradient-to-br from-[#F8E9F0] to-[#F4DDE9] shadow-sm">
+            <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-full border border-[#A45F86]/20 bg-gradient-to-br from-[#F8E9F0] to-[#F4DDE9] shadow-sm">
               <TargetIcon />
             </div>
-            <span className="mb-2 block font-[family-name:var(--font-mono)] text-[11px] font-medium uppercase tracking-[0.22em] text-[#6E3F63]">
+            <span className="mb-2 block font-[family-name:var(--font-mono)] text-[10px] font-medium uppercase tracking-[0.22em] text-[#6E3F63]">
               Our Mission
             </span>
-            <h2 className="mb-3 font-[family-name:var(--font-display)] text-[clamp(1.45rem,2.3vw,2rem)] font-semibold italic leading-[1.15] text-[#2B2330]">
+            <h2 className="mb-2 font-[family-name:var(--font-display)] text-[clamp(1.6rem,2vw,2.2rem)] font-semibold italic leading-[1.05] text-[#2B2330]">
               Informed Skincare Decisions
             </h2>
-            <p className="font-[family-name:var(--font-mono)] text-sm leading-relaxed text-[#2B2330]/75">
+            <p className="font-[family-name:var(--font-mono)] text-[13px] leading-relaxed text-[#2B2330]/75">
               KYS exists to help people make informed skincare decisions through advanced skin diagnostics and personalized product recommendations.
             </p>
           </div>
 
           <div
             data-floating-card
-            className="md:col-span-1 md:col-start-2 md:ml-auto md:mt-16 md:max-w-md rounded-[1.5rem] border border-[#A45F86]/15 bg-[linear-gradient(180deg,#FFFDFB_0%,#FDF5F8_100%)] p-6 shadow-[0_18px_40px_-25px_rgba(89,46,86,0.25)] backdrop-blur-md transition-shadow duration-300 hover:shadow-[0_22px_45px_-25px_rgba(89,46,86,0.35)] sm:p-8"
+            className="md:col-span-1 md:col-start-2 md:ml-auto md:mt-12 md:max-w-[24.5rem] rounded-[1.5rem] border border-[#A45F86]/15 bg-[linear-gradient(180deg,#FFFDFB_0%,#FDF5F8_100%)] p-4 shadow-[0_18px_40px_-25px_rgba(89,46,86,0.25)] backdrop-blur-md transition-shadow duration-300 hover:shadow-[0_22px_45px_-25px_rgba(89,46,86,0.35)] sm:p-5"
           >
-            <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-full border border-[#A45F86]/20 bg-gradient-to-br from-[#F8E9F0] to-[#F4DDE9] shadow-sm">
+            <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-full border border-[#A45F86]/20 bg-gradient-to-br from-[#F8E9F0] to-[#F4DDE9] shadow-sm">
               <EyeIcon />
             </div>
-            <span className="mb-2 block font-[family-name:var(--font-mono)] text-[11px] font-medium uppercase tracking-[0.22em] text-[#6E3F63]">
+            <span className="mb-2 block font-[family-name:var(--font-mono)] text-[10px] font-medium uppercase tracking-[0.22em] text-[#6E3F63]">
               Our Vision
             </span>
-            <h2 className="mb-3 font-[family-name:var(--font-display)] text-[clamp(1.45rem,2.3vw,2rem)] font-semibold italic leading-[1.15] text-[#2B2330]">
+            <h2 className="mb-2 font-[family-name:var(--font-display)] text-[clamp(1.6rem,2vw,2.2rem)] font-semibold italic leading-[1.05] text-[#2B2330]">
               Trusted Personalization
             </h2>
-            <p className="font-[family-name:var(--font-mono)] text-sm leading-relaxed text-[#2B2330]/75">
+            <p className="font-[family-name:var(--font-mono)] text-[13px] leading-relaxed text-[#2B2330]/75">
               To become India’s most trusted personalized skincare company by combining technology, science, and skincare into one seamless experience.
             </p>
           </div>
 
           <div
             data-floating-card
-            className="md:col-span-1 md:max-w-md rounded-[1.5rem] border border-[#A45F86]/15 bg-[linear-gradient(180deg,#FFFDFB_0%,#FDF5F8_100%)] p-6 shadow-[0_18px_40px_-25px_rgba(89,46,86,0.25)] backdrop-blur-md transition-shadow duration-300 hover:shadow-[0_22px_45px_-25px_rgba(89,46,86,0.35)] sm:p-8 md:-mt-6"
+            className="md:col-span-1 md:max-w-[24.5rem] rounded-[1.5rem] border border-[#A45F86]/15 bg-[linear-gradient(180deg,#FFFDFB_0%,#FDF5F8_100%)] p-4 shadow-[0_18px_40px_-25px_rgba(89,46,86,0.25)] backdrop-blur-md transition-shadow duration-300 hover:shadow-[0_22px_45px_-25px_rgba(89,46,86,0.35)] sm:p-5 md:-mt-4"
           >
-            <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-full border border-[#A45F86]/20 bg-gradient-to-br from-[#F8E9F0] to-[#F4DDE9] shadow-sm">
+            <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-full border border-[#A45F86]/20 bg-gradient-to-br from-[#F8E9F0] to-[#F4DDE9] shadow-sm">
               <MonitorIcon />
             </div>
-            <span className="mb-2 block font-[family-name:var(--font-mono)] text-[11px] font-medium uppercase tracking-[0.22em] text-[#6E3F63]">
+            <span className="mb-2 block font-[family-name:var(--font-mono)] text-[10px] font-medium uppercase tracking-[0.22em] text-[#6E3F63]">
               Advanced Diagnostics
             </span>
-            <h2 className="mb-3 font-[family-name:var(--font-display)] text-[clamp(1.45rem,2.3vw,2rem)] font-semibold italic leading-[1.15] text-[#2B2330]">
+            <h2 className="mb-2 font-[family-name:var(--font-display)] text-[clamp(1.6rem,2vw,2.2rem)] font-semibold italic leading-[1.05] text-[#2B2330]">
               Advanced Skin Analysis
             </h2>
-            <p className="font-[family-name:var(--font-mono)] text-sm leading-relaxed text-[#2B2330]/75">
+            <p className="font-[family-name:var(--font-mono)] text-[13px] leading-relaxed text-[#2B2330]/75">
               Our advanced skin analysis machine provides detailed insights about your skin health before any product recommendation.
             </p>
           </div>
 
           <div
             data-floating-card
-            className="md:col-span-1 md:col-start-2 md:ml-auto md:mt-10 md:max-w-md rounded-[1.5rem] border border-[#A45F86]/15 bg-[linear-gradient(180deg,#FFFDFB_0%,#FDF5F8_100%)] p-6 shadow-[0_18px_40px_-25px_rgba(89,46,86,0.25)] backdrop-blur-md transition-shadow duration-300 hover:shadow-[0_22px_45px_-25px_rgba(89,46,86,0.35)] sm:p-8"
+            className="md:col-span-1 md:col-start-2 md:ml-auto md:mt-8 md:max-w-[24.5rem] rounded-[1.5rem] border border-[#A45F86]/15 bg-[linear-gradient(180deg,#FFFDFB_0%,#FDF5F8_100%)] p-4 shadow-[0_18px_40px_-25px_rgba(89,46,86,0.25)] backdrop-blur-md transition-shadow duration-300 hover:shadow-[0_22px_45px_-25px_rgba(89,46,86,0.35)] sm:p-5"
           >
-            <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-full border border-[#A45F86]/20 bg-gradient-to-br from-[#F8E9F0] to-[#F4DDE9] shadow-sm">
+            <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-full border border-[#A45F86]/20 bg-gradient-to-br from-[#F8E9F0] to-[#F4DDE9] shadow-sm">
               <FlaskIcon />
             </div>
-            <span className="mb-2 block font-[family-name:var(--font-mono)] text-[11px] font-medium uppercase tracking-[0.22em] text-[#6E3F63]">
+            <span className="mb-2 block font-[family-name:var(--font-mono)] text-[10px] font-medium uppercase tracking-[0.22em] text-[#6E3F63]">
               Our Science
             </span>
-            <h2 className="mb-3 font-[family-name:var(--font-display)] text-[clamp(1.45rem,2.3vw,2rem)] font-semibold italic leading-[1.15] text-[#2B2330]">
+            <h2 className="mb-2 font-[family-name:var(--font-display)] text-[clamp(1.6rem,2vw,2.2rem)] font-semibold italic leading-[1.05] text-[#2B2330]">
               No Assumptions. Only Science.
             </h2>
-            <p className="font-[family-name:var(--font-mono)] text-sm leading-relaxed text-[#2B2330]/75">
+            <p className="font-[family-name:var(--font-mono)] text-[13px] leading-relaxed text-[#2B2330]/75">
               Don’t Guess. Know. Every skincare journey starts with one fundamental question: What does your skin actually need?
             </p>
           </div>
