@@ -6,7 +6,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import EveryFace from "./EveryFace";
 import MissionVision from "./MissionVision";
-import Machine from "./Machine";
+import SkinType from "./SkinType";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -30,7 +30,7 @@ const mono = Space_Grotesk({
 /* Owns the page-level scroll-animation logic and chrome (background   */
 /* glow, grid). Just composes the four sections above — don't add      */
 /* section content here, add it to the relevant function instead.      */
-/* Machine owns its own additional canvas timeline; it still exposes    */
+/* SkinType owns its own additional canvas timeline; it still exposes   */
 /* data-stage / data-reveal so this loop keeps working.                */
 /* MissionVision owns its own approach + pinned mission timelines.     */
 /* ------------------------------------------------------------------ */
@@ -119,7 +119,7 @@ export default function About() {
       />
       <div className="relative z-10 mx-auto max-w-4xl">
         <MissionVision />
-        <Machine />
+        <SkinType />
         <EveryFace />
       </div>
     </section>

@@ -22,34 +22,6 @@ const mono = Space_Grotesk({
   variable: "--font-mono",
 });
 
-// Icon components
-const TargetIcon = () => (
-  <svg className="w-5 h-5 text-neutral-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75">
-    <circle cx="12" cy="12" r="9" />
-    <circle cx="12" cy="12" r="3" />
-  </svg>
-);
-
-const EyeIcon = () => (
-  <svg className="w-5 h-5 text-neutral-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-    <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-  </svg>
-);
-
-const MonitorIcon = () => (
-  <svg className="w-5 h-5 text-neutral-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75">
-    <rect x="2" y="3" width="20" height="14" rx="2" />
-    <path strokeLinecap="round" strokeLinejoin="round" d="M8 21h8m-4-4v4" />
-  </svg>
-);
-
-const FlaskIcon = () => (
-  <svg className="w-5 h-5 text-neutral-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-  </svg>
-);
-
 export default function MissionVision() {
   const containerRef = useRef(null);
   const parallaxImgRef = useRef(null);
@@ -65,8 +37,12 @@ export default function MissionVision() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
+      const prefersReducedMotion =
+        typeof window !== "undefined" &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
       // Parallax movement for the central image inside the mask
-      if (parallaxImgRef.current && containerRef.current) {
+      if (parallaxImgRef.current && containerRef.current && !prefersReducedMotion) {
         gsap.fromTo(
           parallaxImgRef.current,
           { yPercent: -14, scale: 1.22 },
@@ -83,20 +59,59 @@ export default function MissionVision() {
         );
       }
 
-      // Cards stay fully visible at all times — no opacity/fade. They rise
-      // upward from a lower starting offset, driven by the SAME container
-      // scrollTrigger range as the image above, so cards + image move
-      // together as one continuous scroll-linked parallax system rather
-      // than a separate "reveal" animation. Each card starts a bit further
-      // below than the last for a layered, non-uniform feel.
+      // Cards stay fully visible at all times — no opacity animation. Only
+      // position moves, split across two separate transform channels so
+      // they never fight each other (GSAP combines `y` (px) and `yPercent`
+      // additively into the same translate, so both can animate at once):
+      //
+      // 1) ENTRANCE - a fast rise on `y`, scoped to each card's own position
+      //    in the viewport (a short, local scroll range) rather than the
+      //    whole section, so it reads as quick and snappy as you scroll it
+      //    into view.
+      //
+      // 2) DRIFT - a slow, subtle continuous parallax on `yPercent`, tied to
+      //    the SAME container scrollTrigger range as the central image, so
+      //    cards keep floating in sync with the image for the rest of the
+      //    section's scroll.
       const cards = gsap.utils.toArray("[data-floating-card]", containerRef.current);
+
       cards.forEach((card, index) => {
-        const startY = 110 + index * 18;
+        const startY = 110 + index * 20;
+
+        if (prefersReducedMotion) {
+          gsap.set(card, { y: 0, yPercent: 0 });
+          return;
+        }
+
+        // Start offset below the resting position before any ScrollTrigger
+        // fires, so there's no flash of the fully-settled card on load.
+        gsap.set(card, { y: startY });
+
+        // 1) Entrance - fast rise, driven by the card's own scroll position.
+        // Short start/end range + no scrub smoothing = snaps to scroll
+        // 1:1, so it feels quick rather than a slow drift.
         gsap.fromTo(
           card,
           { y: startY },
           {
-            y: -startY * 0.18,
+            y: 0,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: card,
+              start: "top 95%",
+              end: "top 62%",
+              scrub: true,
+            },
+          }
+        );
+
+        // 2) Drift - slow continuous parallax on a different transform
+        // channel, synced with the image across the full section scroll.
+        gsap.fromTo(
+          card,
+          { yPercent: -6 },
+          {
+            yPercent: 6,
             ease: "none",
             scrollTrigger: {
               trigger: containerRef.current,
@@ -116,10 +131,6 @@ export default function MissionVision() {
       const full = fullTextRef.current;
 
       if (kys && full) {
-        const prefersReducedMotion =
-          typeof window !== "undefined" &&
-          window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
         if (prefersReducedMotion) {
           gsap.set(kys, { opacity: 0 });
           gsap.set(full, { opacity: 1, scale: 1 });
@@ -229,9 +240,6 @@ export default function MissionVision() {
             data-floating-card
             className="w-full z-10 md:absolute md:left-[8%] lg:left-[10%] md:top-[4%] md:w-auto md:max-w-[16.5rem] lg:max-w-[18.5rem] rounded-[1.5rem] border border-[#A45F86]/15 bg-[linear-gradient(180deg,#FFFDFB_0%,#FDF5F8_100%)] p-3.5 shadow-[0_18px_40px_-25px_rgba(89,46,86,0.25)] backdrop-blur-md transition-shadow duration-300 hover:shadow-[0_22px_45px_-25px_rgba(89,46,86,0.35)] sm:p-4"
           >
-            <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full border border-[#A45F86]/20 bg-gradient-to-br from-[#F8E9F0] to-[#F4DDE9] shadow-sm">
-              <TargetIcon />
-            </div>
             <span className="mb-2 block font-[family-name:var(--font-mono)] text-[10px] font-medium uppercase tracking-[0.22em] text-[#6E3F63]">
               Our Mission
             </span>
@@ -247,9 +255,6 @@ export default function MissionVision() {
             data-floating-card
             className="w-full z-10 md:absolute md:right-0 lg:right-2 md:top-[15%] md:w-auto md:max-w-[16.5rem] lg:max-w-[18.5rem] rounded-[1.5rem] border border-[#A45F86]/15 bg-[linear-gradient(180deg,#FFFDFB_0%,#FDF5F8_100%)] p-3.5 shadow-[0_18px_40px_-25px_rgba(89,46,86,0.25)] backdrop-blur-md transition-shadow duration-300 hover:shadow-[0_22px_45px_-25px_rgba(89,46,86,0.35)] sm:p-4"
           >
-            <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full border border-[#A45F86]/20 bg-gradient-to-br from-[#F8E9F0] to-[#F4DDE9] shadow-sm">
-              <EyeIcon />
-            </div>
             <span className="mb-2 block font-[family-name:var(--font-mono)] text-[10px] font-medium uppercase tracking-[0.22em] text-[#6E3F63]">
               Our Vision
             </span>
@@ -265,9 +270,6 @@ export default function MissionVision() {
             data-floating-card
             className="w-full z-10 md:absolute md:left-0 lg:left-2 md:bottom-[15%] md:w-auto md:max-w-[16.5rem] lg:max-w-[18.5rem] rounded-[1.5rem] border border-[#A45F86]/15 bg-[linear-gradient(180deg,#FFFDFB_0%,#FDF5F8_100%)] p-3.5 shadow-[0_18px_40px_-25px_rgba(89,46,86,0.25)] backdrop-blur-md transition-shadow duration-300 hover:shadow-[0_22px_45px_-25px_rgba(89,46,86,0.35)] sm:p-4"
           >
-            <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full border border-[#A45F86]/20 bg-gradient-to-br from-[#F8E9F0] to-[#F4DDE9] shadow-sm">
-              <MonitorIcon />
-            </div>
             <span className="mb-2 block font-[family-name:var(--font-mono)] text-[10px] font-medium uppercase tracking-[0.22em] text-[#6E3F63]">
               Advanced Diagnostics
             </span>
@@ -283,9 +285,6 @@ export default function MissionVision() {
             data-floating-card
             className="w-full z-10 md:absolute md:right-[8%] lg:right-[10%] md:bottom-[7%] md:w-auto md:max-w-[16.5rem] lg:max-w-[18.5rem] rounded-[1.5rem] border border-[#A45F86]/15 bg-[linear-gradient(180deg,#FFFDFB_0%,#FDF5F8_100%)] p-3.5 shadow-[0_18px_40px_-25px_rgba(89,46,86,0.25)] backdrop-blur-md transition-shadow duration-300 hover:shadow-[0_22px_45px_-25px_rgba(89,46,86,0.35)] sm:p-4"
           >
-            <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full border border-[#A45F86]/20 bg-gradient-to-br from-[#F8E9F0] to-[#F4DDE9] shadow-sm">
-              <FlaskIcon />
-            </div>
             <span className="mb-2 block font-[family-name:var(--font-mono)] text-[10px] font-medium uppercase tracking-[0.22em] text-[#6E3F63]">
               Our Science
             </span>

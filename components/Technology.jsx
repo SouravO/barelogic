@@ -22,9 +22,6 @@ const mono = Space_Grotesk({
   variable: "--font-mono",
 });
 
-const GRADIENT =
-  "linear-gradient(115deg, #3E1F3D 0%, #6E3F63 30%, #A45F86 55%, #C97AA0 75%, #E9B9CC 100%)";
-
 const PARAMETERS = [
   "Skin Type",
   "Oil Balance",
@@ -42,67 +39,14 @@ const PARAMETERS = [
   "Texture",
 ];
 
-function DiagnosticRing({ sweepRef, className }) {
-  return (
-    <svg viewBox="0 0 600 600" className={className}>
-      <circle cx="300" cy="300" r="280" fill="none" stroke="#2B2330" strokeOpacity="0.12" strokeWidth="1" />
-      <circle cx="300" cy="300" r="220" fill="none" stroke="#2B2330" strokeOpacity="0.14" strokeWidth="1" />
-      <circle cx="300" cy="300" r="160" fill="none" stroke="#2B2330" strokeOpacity="0.16" strokeWidth="1" />
-      {Array.from({ length: 60 }).map((_, i) => {
-        const angle = (i * 360) / 60;
-        const major = i % 5 === 0;
-        const r1 = 280;
-        const r2 = major ? 258 : 270;
-        const rad = (angle * Math.PI) / 180;
-        const round = (n) => Math.round(n * 100) / 100;
-        return (
-          <line
-            key={i}
-            x1={round(300 + r1 * Math.cos(rad))}
-            y1={round(300 + r1 * Math.sin(rad))}
-            x2={round(300 + r2 * Math.cos(rad))}
-            y2={round(300 + r2 * Math.sin(rad))}
-            stroke="#2B2330"
-            strokeOpacity={major ? 0.24 : 0.1}
-            strokeWidth="1"
-          />
-        );
-      })}
-      <g ref={sweepRef} style={{ transformOrigin: "300px 300px" }}>
-        <path d="M300 300 L300 20 A280 280 0 0 1 445 96 Z" fill="url(#kys-sweep)" />
-      </g>
-      <defs>
-        <linearGradient id="kys-sweep" x1="300" y1="20" x2="445" y2="96" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#A45F86" stopOpacity="0.32" />
-          <stop offset="1" stopColor="#A45F86" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <circle cx="300" cy="300" r="5" fill="#3E1F3D" />
-    </svg>
-  );
-}
-
 export default function Technology() {
   const sectionRef = useRef(null);
-  const sweep1Ref = useRef(null);
-  const sweep2Ref = useRef(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        [sweep1Ref, sweep2Ref].forEach((ref) => {
-          if (!ref.current) return;
-          gsap.to(ref.current, {
-            rotate: 360,
-            duration: 10,
-            repeat: -1,
-            ease: "none",
-            transformOrigin: "50% 50%",
-          });
-        });
-
         const stages = gsap.utils.toArray("[data-tech-stage]", sectionRef.current);
         stages.forEach((stage) => {
           const items = stage.querySelectorAll("[data-reveal]");
@@ -148,7 +92,7 @@ export default function Technology() {
     <section
       id="technology"
       ref={sectionRef}
-      className={`${display.variable} ${mono.variable} relative overflow-hidden bg-[#FAF5EE] px-6 py-28 md:py-36`}
+      className={`${display.variable} ${mono.variable} relative overflow-hidden bg-[#FAF5EE] px-6 pt-8 pb-28 md:pt-10 md:pb-36`}
     >
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.04]"
@@ -160,76 +104,7 @@ export default function Technology() {
       />
 
       <div className="relative z-10 mx-auto max-w-6xl">
-        <div data-tech-stage className="grid items-center gap-12 border-b border-[#2B2330]/10 py-16 md:grid-cols-2 md:py-24">
-          <div>
-            <h2
-              data-reveal
-              className="mb-8 font-[family-name:var(--font-display)] text-5xl font-semibold italic leading-[1.05] sm:text-6xl"
-              style={{
-                backgroundImage: GRADIENT,
-                WebkitBackgroundClip: "text",
-                backgroundClip: "text",
-                color: "transparent",
-              }}
-            >
-              Don&rsquo;t Guess.
-              <br />
-              Know.
-            </h2>
-            <div className="space-y-4 font-[family-name:var(--font-mono)] text-lg leading-relaxed text-[#2B2330]/80">
-              <p data-reveal>Every skincare journey starts with one question.</p>
-              <p data-reveal className="italic">What does your skin actually need?</p>
-              <p data-reveal>
-                Our advanced skin analysis machine provides detailed insights about your skin
-                health before any product recommendation.
-              </p>
-              <p data-reveal className="font-semibold text-[#2B2330]">
-                No assumptions.
-                <br />
-                Only science.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex justify-center">
-            <DiagnosticRing
-              sweepRef={sweep1Ref}
-              className="h-[62vw] w-[62vw] max-h-[420px] max-w-[420px] sm:h-[380px] sm:w-[380px]"
-            />
-          </div>
-        </div>
-
-        <div className="grid items-center gap-12 border-b border-[#2B2330]/10 py-16 md:grid-cols-2 md:py-24" data-tech-stage>
-          <div className="order-2 flex justify-center md:order-1">
-            <DiagnosticRing
-              sweepRef={sweep2Ref}
-              className="h-[62vw] w-[62vw] max-h-[420px] max-w-[420px] sm:h-[380px] sm:w-[380px]"
-            />
-          </div>
-
-          <div className="order-1 md:order-2">
-            <h2
-              data-reveal
-              className="mb-8 font-[family-name:var(--font-display)] text-4xl font-semibold italic leading-[1.1] sm:text-5xl"
-            >
-              Precision Meets Personal Care
-            </h2>
-            <div className="space-y-4 font-[family-name:var(--font-mono)] text-lg leading-relaxed text-[#2B2330]/80">
-              <p data-reveal>
-                Our skin analysis system evaluates multiple skin parameters within minutes.
-              </p>
-              <p data-reveal>
-                It helps identify visible and underlying concerns that cannot always be seen with
-                naked eye.
-              </p>
-              <p data-reveal>
-                This allows us to recommend products with greater accuracy and confidence.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div data-tech-stage className="py-16 text-center md:py-24">
+        <div data-tech-stage className="pt-8 pb-16 text-center md:pt-10 md:pb-24">
           <h2
             data-reveal
             className="mb-12 font-[family-name:var(--font-display)] text-4xl font-semibold italic leading-[1.1] sm:text-5xl"
