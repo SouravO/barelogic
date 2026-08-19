@@ -27,9 +27,8 @@ export default function MissionVision() {
   const parallaxImgRef = useRef(null);
 
   // Title "KYS" -> "KNOW YOUR SKIN" expand refs
-  const titleWrapRef = useRef(null);
-  const kysTextRef = useRef(null);
-  const fullTextRef = useRef(null);
+  const titleRef = useRef(null); // the <h1> itself — used to detect when the title is centered in the viewport
+  const titleWrapRef = useRef(null); // the gradient span wrapping the letter sequence
 
   // Unique id for the clip-path so multiple instances of this section never collide
   const rawId = useId();
@@ -123,39 +122,121 @@ export default function MissionVision() {
         );
       });
 
-      // Title entrance — shows as "KYS" first, then suddenly expands into
-      // the full "KNOW YOUR SKIN". Fires once the section has mostly
-      // scrolled open (top nearing the top of the viewport), not the
-      // moment it starts entering. Plays once.
-      const kys = kysTextRef.current;
-      const full = fullTextRef.current;
+      // Title entrance — starts set as "KYS" (tight, no gaps). In two
+      // phases, it turns into "KNOW YOUR SKIN" right in place:
+      //
+      // 1) SPREAD — the hidden letter-chunks ("NOW ", "OUR ", "KIN") grow
+      //    from 0 width to their natural width, which pushes the anchor
+      //    letters K / Y / S apart. At this point the opened gaps are
+      //    still empty — just spacing, no text yet.
+      //
+      // 2) FILL — once the gaps are open, the chunks' text fades + settles
+      //    into place, completing "KNOW YOUR SKIN".
+      //
+      // Driven purely by scroll: it only fires once the title's own
+      // vertical center crosses the center of the viewport while
+      // scrolling down, and plays only once.
+      if (titleWrapRef.current) {
+          const growPairs = gsap.utils
+            .toArray("[data-grow-outer]", titleWrapRef.current)
+            .map((outer) => ({
+              outer,
+            inner: outer.querySelector("[data-grow-inner]"),
+          }));
 
-      if (kys && full) {
         if (prefersReducedMotion) {
-          gsap.set(kys, { opacity: 0 });
-          gsap.set(full, { opacity: 1, scale: 1 });
-        } else {
-          gsap.set(kys, { opacity: 1, scale: 1 });
-          gsap.set(full, { opacity: 0, scale: 0.55 });
+          growPairs.forEach(({ outer, inner }) => {
+            gsap.set(outer, { width: "auto" });
+            gsap.set(inner, { opacity: 1 });
+          });
+        } else if (growPairs.length) {
+          // Measure each chunk's natural (fully-open) width before hiding it.
+          growPairs.forEach((pair) => {
+            pair.naturalWidth = pair.inner.scrollWidth;
+          });
+
+          const outers = growPairs.map((p) => p.outer);
+          const inners = growPairs.map((p) => p.inner);
+
+          gsap.set(outers, { width: 0 });
+          gsap.set(inners, { opacity: 0 });
+
+          // The display font (Bodoni Moda) can still swap in after the
+          // measurement above and change the text's true width. Re-measure
+          // once webfonts are actually ready and nudge ScrollTrigger to
+          // recalculate, so both the gap widths and the scroll trigger
+          // point stay accurate.
+          if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(() => {
+              growPairs.forEach((pair) => {
+                pair.naturalWidth = pair.inner.scrollWidth;
+              });
+              ScrollTrigger.refresh();
+            });
+          }
+
+          // Guards against playing the reveal twice — both the
+          // ScrollTrigger's onEnter and the manual past-start check below
+          // could otherwise both try to fire it.
+          let expanded = false;
 
           const playTitleExpand = () => {
-            gsap
-              .timeline({ delay: 0.35 })
-              .to(kys, { opacity: 0, scale: 1.2, duration: 0.35, ease: "power2.in" }, 0)
-              .to(full, { opacity: 1, scale: 1, duration: 0.7, ease: "back.out(1.6)" }, 0.08);
+            if (expanded) return;
+            expanded = true;
+
+            const tl = gsap.timeline({ delay: 0.2 });
+
+            // 1) Spread — gaps open up, still empty.
+            tl.to(
+              outers,
+              {
+                width: (i) => growPairs[i].naturalWidth,
+                duration: 0.55,
+                ease: "power3.inOut",
+                stagger: 0.06,
+              },
+              0
+            );
+
+            // 2) Fill — the missing letters fade + settle into the gaps
+            // just opened, starting slightly before the spread finishes
+            // so the two phases blend smoothly.
+            tl.fromTo(
+              inners,
+              { opacity: 0, y: 6 },
+              {
+                opacity: 1,
+                y: 0,
+                duration: 0.4,
+                ease: "power2.out",
+                stagger: 0.06,
+              },
+              0.3
+            );
+
+            // Once settled, release the pixel-locked width AND the clip
+            // back to natural — guarantees "KNOW YOUR SKIN" always ends up
+            // fully visible even if a measurement was slightly off, and
+            // keeps the title correctly sized on resize/breakpoint changes.
+            tl.set(outers, { width: "auto", overflow: "visible" });
           };
 
-          const rect = containerRef.current.getBoundingClientRect();
-          if (rect.top <= window.innerHeight * 0.15) {
-            // Section is already mostly open on load — play immediately.
+          const st = ScrollTrigger.create({
+            trigger: titleRef.current,
+            start: "center center",
+            once: true,
+            onEnter: playTitleExpand,
+          });
+
+          // Don't rely on ScrollTrigger implicitly firing onEnter for a
+          // start point that's already been scrolled past when it was
+          // created (e.g. the title sits near the top of the page, so
+          // it's already past "center center" before any scroll happens
+          // — there's no further "down" scroll that would ever cross it).
+          // Check directly and fire the reveal ourselves if so.
+          if (st.progress > 0) {
+            st.kill();
             playTitleExpand();
-          } else {
-            ScrollTrigger.create({
-              trigger: containerRef.current,
-              start: "top 15%",
-              once: true,
-              onEnter: playTitleExpand,
-            });
           }
         }
       }
@@ -171,25 +252,25 @@ export default function MissionVision() {
     >
       <div className="max-w-7xl mx-auto relative z-10 mb-1 lg:mb-2 pt-14 sm:pt-16 lg:pt-24">
         <div className="relative flex flex-col items-center text-center">
-          <h1 className="font-[family-name:var(--font-display)] text-4xl font-semibold italic leading-[1.08] tracking-[-0.05em] sm:text-6xl lg:text-7xl">
-            <span ref={titleWrapRef} className="relative inline-block">
-              {/* invisible spacer reserves the full "KNOW YOUR SKIN" width so nothing shifts as it expands */}
-              <span aria-hidden="true" className="invisible whitespace-nowrap">
-                KNOW YOUR SKIN
+          <h1
+            ref={titleRef}
+            className="font-[family-name:var(--font-display)] text-4xl font-semibold italic leading-[1.08] tracking-[-0.05em] sm:text-6xl lg:text-7xl"
+          >
+            <span
+              ref={titleWrapRef}
+              className="whitespace-nowrap bg-gradient-to-r from-[#3E1F3D] via-[#6E3F63] to-[#A45F86] bg-clip-text text-transparent"
+            >
+              K
+              <span data-grow-outer className="inline-block overflow-hidden">
+                <span data-grow-inner className="inline-block whitespace-nowrap bg-gradient-to-r from-[#3E1F3D] via-[#6E3F63] to-[#A45F86] bg-clip-text text-transparent">NOW </span>
               </span>
-
-              <span
-                ref={kysTextRef}
-                className="absolute inset-0 whitespace-nowrap text-center bg-gradient-to-r from-[#3E1F3D] via-[#6E3F63] to-[#A45F86] bg-clip-text text-transparent"
-              >
-                KYS
+              Y
+              <span data-grow-outer className="inline-block overflow-hidden">
+                <span data-grow-inner className="inline-block whitespace-nowrap bg-gradient-to-r from-[#3E1F3D] via-[#6E3F63] to-[#A45F86] bg-clip-text text-transparent">OUR </span>
               </span>
-
-              <span
-                ref={fullTextRef}
-                className="absolute inset-0 whitespace-nowrap text-center bg-gradient-to-r from-[#3E1F3D] via-[#6E3F63] to-[#A45F86] bg-clip-text text-transparent"
-              >
-                KNOW YOUR SKIN
+              S
+              <span data-grow-outer className="inline-block overflow-hidden">
+                <span data-grow-inner className="inline-block whitespace-nowrap bg-gradient-to-r from-[#3E1F3D] via-[#6E3F63] to-[#A45F86] bg-clip-text text-transparent">KIN</span>
               </span>
             </span>
             <br />

@@ -100,7 +100,7 @@ export default function About() {
     <section
       id="about"
       ref={sectionRef}
-      className={`${display.variable} ${mono.variable} relative overflow-hidden bg-[#FAF5EE] px-6 pb-28 pt-0 md:pb-36`}
+      className={`${display.variable} ${mono.variable} relative overflow-hidden bg-[#FAF5EE] px-6 pb-0 pt-0`}
     >
       <div
         className="pointer-events-none absolute inset-0"

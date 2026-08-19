@@ -34,8 +34,6 @@ const GUESS_WORDS = [
   { text: "Dehydrated?", top: "90%", left: "66%" },
 ];
 
-const READOUTS = ["Hydration", "Oil Balance", "Texture", "Pigmentation"];
-
 export default function SkinType() {
   const stageRef = useRef(null);
   const climaxRef = useRef(null);
@@ -49,7 +47,6 @@ export default function SkinType() {
   const scanLineRef = useRef(null);
   const scanGlowRef = useRef(null);
   const wordsWrapRef = useRef(null);
-  const readoutWrapRef = useRef(null);
   const entrancePlayedRef = useRef(false);
 
   // NEW: parallax targets — image panel wrapper and text column
@@ -65,7 +62,6 @@ export default function SkinType() {
   useEffect(() => {
     const ctx = gsap.context(() => {
       const words = Array.from(wordsWrapRef.current?.querySelectorAll("[data-guess-word]") ?? []);
-      const readouts = Array.from(readoutWrapRef.current?.querySelectorAll("[data-readout]") ?? []);
       const track = scanTrackRef.current;
       const line = scanLineRef.current;
       const glowBand = scanGlowRef.current;
@@ -79,7 +75,7 @@ export default function SkinType() {
         window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
       if (prefersReducedMotion) {
-        gsap.set([face, glow, flash, wordsWrapRef.current, readoutWrapRef.current], {
+        gsap.set([face, glow, flash, wordsWrapRef.current], {
           clearProps: "all",
           opacity: 1,
           filter: "none",
@@ -97,7 +93,6 @@ export default function SkinType() {
       });
       gsap.set(glow, { opacity: 0, scale: 0.85 });
       gsap.set(flash, { opacity: 0, scale: 0.8 });
-      gsap.set(readouts, { opacity: 0, y: 10 });
       gsap.set([line, glowBand], { y: 0, opacity: 0 });
 
       // NEW: parallax — image panel drifts from below to above the fold as the
@@ -215,8 +210,7 @@ export default function SkinType() {
           .to(glow, { opacity: 0.9, scale: 1.15, duration: 0.8, ease: "none" }, 0.35)
           .to(flash, { opacity: 0.55, scale: 1.25, duration: 0.2, ease: "none" }, 0.78)
           .to(flash, { opacity: 0, duration: 0.3, ease: "none" }, 0.95)
-          .to(brackets, { opacity: 1, borderColor: "#3E1F3D", duration: 0.4, ease: "none" }, 0.75)
-          .to(readouts, { opacity: 1, y: 0, stagger: 0.08, duration: 0.4, ease: "none" }, 0.88);
+          .to(brackets, { opacity: 1, borderColor: "#3E1F3D", duration: 0.4, ease: "none" }, 0.75);
       }
     }, stageRef);
 
@@ -318,107 +312,120 @@ export default function SkinType() {
           ref={canvasRef}
           className="order-first mx-auto w-full max-w-[280px] select-none sm:max-w-sm md:order-last md:sticky md:top-28 md:mx-0 md:max-w-none"
         >
-          <div ref={parallaxImageRef} className="flex h-full w-full flex-col items-stretch gap-5">
-            <div aria-hidden="true" className="relative h-full min-h-[420px] w-full md:min-h-[540px]">
-              <div className="absolute inset-0 rounded-[28px] border border-[#2B2330]/10 bg-gradient-to-b from-[#FFFBF6]/70 to-[#FFFBF6]/15" />
+          <div ref={parallaxImageRef} className="flex h-full w-full flex-col items-stretch">
+            <div className="relative h-full min-h-[420px] w-full md:min-h-[540px]">
+              <div aria-hidden="true" className="h-full w-full">
+                <div className="absolute inset-0 rounded-[28px] border border-[#2B2330]/10 bg-gradient-to-b from-[#FFFBF6]/70 to-[#FFFBF6]/15" />
 
-              <div ref={bracketsRef} className="pointer-events-none absolute inset-5 opacity-40">
-                <span className="absolute left-0 top-0 h-5 w-5 rounded-tl-md border-l-2 border-t-2 border-[#8C5A82]" />
-                <span className="absolute right-0 top-0 h-5 w-5 rounded-tr-md border-r-2 border-t-2 border-[#8C5A82]" />
-                <span className="absolute bottom-0 left-0 h-5 w-5 rounded-bl-md border-b-2 border-l-2 border-[#8C5A82]" />
-                <span className="absolute bottom-0 right-0 h-5 w-5 rounded-br-md border-b-2 border-r-2 border-[#8C5A82]" />
-              </div>
+                <div ref={bracketsRef} className="pointer-events-none absolute inset-5 opacity-40">
+                  <span className="absolute left-0 top-0 h-5 w-5 rounded-tl-md border-l-2 border-t-2 border-[#8C5A82]" />
+                  <span className="absolute right-0 top-0 h-5 w-5 rounded-tr-md border-r-2 border-t-2 border-[#8C5A82]" />
+                  <span className="absolute bottom-0 left-0 h-5 w-5 rounded-bl-md border-b-2 border-l-2 border-[#8C5A82]" />
+                  <span className="absolute bottom-0 right-0 h-5 w-5 rounded-br-md border-b-2 border-r-2 border-[#8C5A82]" />
+                </div>
 
-              <div
-                ref={glowRef}
-                className="pointer-events-none absolute left-1/2 top-1/2 h-[70%] w-[70%] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[50px]"
-                style={{
-                  background:
-                    "radial-gradient(circle, rgba(201,122,160,0.55) 0%, rgba(140,90,130,0.25) 45%, rgba(250,245,238,0) 75%)",
-                }}
-              />
-
-              <div
-                ref={flashRef}
-                className="pointer-events-none absolute left-1/2 top-1/2 h-[55%] w-[55%] -translate-x-1/2 -translate-y-1/2 rounded-full"
-                style={{
-                  background: "radial-gradient(circle, rgba(255,251,246,0.95) 0%, rgba(255,251,246,0) 70%)",
-                }}
-              />
-
-              {/* clear-skin result, sits behind the scan layer and is revealed as it's clipped away */}
-              <img
-                ref={clearFaceRef}
-                src="/clearskin.png"
-                alt=""
-                className="absolute inset-5 rounded-[20px] object-cover"
-              />
-
-              <img
-                ref={faceRef}
-                src="/facescan.png"
-                alt=""
-                className="absolute inset-5 rounded-[20px] object-cover"
-              />
-
-              <div
-                ref={scanTrackRef}
-                className="pointer-events-none absolute inset-5 overflow-hidden rounded-[20px]"
-              >
                 <div
-                  ref={scanGlowRef}
-                  className="absolute left-0 top-0 h-16 w-full opacity-0"
+                  ref={glowRef}
+                  className="pointer-events-none absolute left-1/2 top-1/2 h-[70%] w-[70%] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[50px]"
                   style={{
                     background:
-                      "linear-gradient(180deg, rgba(201,122,160,0) 0%, rgba(201,122,160,0.4) 100%)",
+                      "radial-gradient(circle, rgba(201,122,160,0.55) 0%, rgba(140,90,130,0.25) 45%, rgba(250,245,238,0) 75%)",
                   }}
                 />
+
                 <div
-                  ref={scanLineRef}
-                  className="absolute left-0 top-0 h-[3px] w-full opacity-0"
+                  ref={flashRef}
+                  className="pointer-events-none absolute left-1/2 top-1/2 h-[55%] w-[55%] -translate-x-1/2 -translate-y-1/2 rounded-full"
                   style={{
-                    background:
-                      "linear-gradient(90deg, transparent 0%, #C97AA0 15%, #FCEFE3 50%, #C97AA0 85%, transparent 100%)",
-                    boxShadow: "0 0 18px 3px rgba(201,122,160,0.85)",
+                    background: "radial-gradient(circle, rgba(255,251,246,0.95) 0%, rgba(255,251,246,0) 70%)",
                   }}
                 />
-              </div>
 
-              <div ref={wordsWrapRef} className="pointer-events-none absolute inset-0">
-                {GUESS_WORDS.map((w) => (
-                  <span
-                    key={w.text}
-                    data-guess-word
-                    className="absolute font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-[0.15em] text-[#2B2330]/70 sm:text-xs"
-                    style={{ top: w.top, left: w.left }}
-                  >
-                    {w.text}
-                  </span>
-                ))}
-              </div>
-            </div>
+                {/* clear-skin result, sits behind the scan layer and is revealed as it's clipped away */}
+                <img
+                  ref={clearFaceRef}
+                  src="/clearskin.png"
+                  alt=""
+                  className="absolute inset-5 rounded-[20px] object-cover"
+                />
 
-            <div ref={readoutWrapRef} aria-hidden="true" className="flex w-full flex-wrap justify-center gap-2">
-              {READOUTS.map((label) => (
-                <span
-                  key={label}
-                  data-readout
-                  className="rounded-full border border-[#2B2330]/10 bg-[#FFFBF6] px-3 py-1 font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-[0.12em] text-[#2B2330]/70 shadow-[0_8px_18px_-12px_rgba(89,46,86,0.3)]"
+                <img
+                  ref={faceRef}
+                  src="/facescan.png"
+                  alt=""
+                  className="absolute inset-5 rounded-[20px] object-cover"
+                />
+
+                <div
+                  ref={scanTrackRef}
+                  className="pointer-events-none absolute inset-5 overflow-hidden rounded-[20px]"
                 >
-                  {label}
-                </span>
-              ))}
-            </div>
+                  <div
+                    ref={scanGlowRef}
+                    className="absolute left-0 top-0 h-16 w-full opacity-0"
+                    style={{
+                      background:
+                        "linear-gradient(180deg, rgba(201,122,160,0) 0%, rgba(201,122,160,0.4) 100%)",
+                    }}
+                  />
+                  <div
+                    ref={scanLineRef}
+                    className="absolute left-0 top-0 h-[3px] w-full opacity-0"
+                    style={{
+                      background:
+                        "linear-gradient(90deg, transparent 0%, #C97AA0 15%, #FCEFE3 50%, #C97AA0 85%, transparent 100%)",
+                      boxShadow: "0 0 18px 3px rgba(201,122,160,0.85)",
+                    }}
+                  />
+                </div>
 
-            <button
-              type="button"
-              onClick={handleReveal}
-              disabled={isAnimating}
-              className="relative z-10 mx-auto flex shrink-0 items-center gap-2 rounded-full px-5 py-2 font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-[0.15em] text-[#FFFBF6] shadow-[0_8px_18px_-10px_rgba(89,46,86,0.45)] transition-opacity disabled:cursor-not-allowed disabled:opacity-60"
-              style={{ backgroundImage: GRADIENT }}
-            >
-              {isAnimating ? "Scanning\u2026" : revealed ? "Scan Again" : "Reveal My Clear Skin"}
-            </button>
+                <div ref={wordsWrapRef} className="pointer-events-none absolute inset-0">
+                  {GUESS_WORDS.map((w) => (
+                    <span
+                      key={w.text}
+                      data-guess-word
+                      className="absolute font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-[0.15em] text-[#2B2330]/70 sm:text-xs"
+                      style={{ top: w.top, left: w.left }}
+                    >
+                      {w.text}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* reveal CTA — anchored low, on the chest, well clear of the face, with a warm
+                  radial glow plus a small "live" ping badge so it reads as tappable at a glance */}
+              <div className="pointer-events-none absolute inset-x-0 bottom-[10%] z-20 flex justify-center px-6">
+                <div className="relative flex items-center justify-center">
+                  <span
+                    aria-hidden="true"
+                    className="absolute h-28 w-28 animate-pulse rounded-full blur-2xl sm:h-36 sm:w-36"
+                    style={{
+                      background:
+                        "radial-gradient(circle, rgba(250,239,227,0.9) 0%, rgba(201,122,160,0.55) 45%, rgba(201,122,160,0) 75%)",
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleReveal}
+                    disabled={isAnimating}
+                    className="pointer-events-auto relative flex shrink-0 items-center gap-2 rounded-full border-2 border-[#FFFBF6]/80 px-6 py-3 font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-[0.15em] text-[#FFFBF6] shadow-[0_10px_24px_-6px_rgba(62,31,61,0.55),0_0_36px_6px_rgba(233,185,204,0.6)] transition-transform duration-300 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-70 sm:px-7 sm:py-3.5 sm:text-xs"
+                    style={{ backgroundImage: GRADIENT }}
+                  >
+                    {isAnimating ? "Scanning\u2026" : revealed ? "Scan Again" : "Reveal My Clear Skin"}
+                    {!revealed && !isAnimating && (
+                      <span aria-hidden="true" className="absolute -right-1 -top-1 flex h-3.5 w-3.5">
+                        <span
+                          className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-80"
+                          style={{ backgroundImage: GRADIENT }}
+                        />
+                        <span className="relative inline-flex h-3.5 w-3.5 rounded-full border border-[#8C5A82] bg-[#FFFBF6]" />
+                      </span>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

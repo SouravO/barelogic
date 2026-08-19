@@ -90,7 +90,7 @@ export default function EveryFace() {
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.3 }}
-      className="relative overflow-hidden min-h-screen flex flex-col justify-center items-center py-16 md:py-24 px-4 text-center"
+      className="relative flex h-screen flex-col items-center justify-center overflow-hidden px-4 py-10 text-center md:py-12"
     >
       {/* Soft color wash so the image reads intentional, not just faded */}
       <div

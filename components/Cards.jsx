@@ -64,8 +64,9 @@ const WHY_CHOOSE = [
 ];
 
 const INTRO_HOLD = 0.015;
-const SECTION_SCROLL_VH = WHY_CHOOSE.length * 0.3 + 1.05;
-const ANIMATION_SCROLL_VH = Math.max(1.8, SECTION_SCROLL_VH - 0.8);
+const EXIT_RELEASE = 0.12;
+const SECTION_SCROLL_VH = WHY_CHOOSE.length * 0.22 + 1.03;
+const ANIMATION_SCROLL_VH = SECTION_SCROLL_VH - 1;
 const SECTION_HEIGHT = `${SECTION_SCROLL_VH * 100}dvh`;
 
 const WhyCard = forwardRef(function WhyCard({ item, variant = "stack" }, ref) {
@@ -128,7 +129,7 @@ function WhyChooseStack() {
       });
 
       const updateCards = (progress) => {
-        const cardProgress = Math.max(0, (progress - INTRO_HOLD) / (1 - INTRO_HOLD));
+        const cardProgress = gsap.utils.clamp(0, 1, (progress - INTRO_HOLD) / (1 - INTRO_HOLD - EXIT_RELEASE));
         const activeIdx = Math.min(cards.length - 1, Math.max(0, Math.floor(cardProgress * cards.length)));
 
         cards.forEach((card, i) => {
