@@ -95,42 +95,45 @@ export default function SkinType() {
       gsap.set(flash, { opacity: 0, scale: 0.8 });
       gsap.set([line, glowBand], { y: 0, opacity: 0 });
 
-      // NEW: parallax — image panel drifts from below to above the fold as the
-      // section travels through the viewport; text column does the same, subtler,
-      // so the two layers read at different depths while scrolling.
-      if (parallaxImageRef.current) {
-        gsap.fromTo(
-          parallaxImageRef.current,
-          { yPercent: 14 },
-          {
-            yPercent: -14,
-            ease: "none",
-            scrollTrigger: {
-              trigger: stageRef.current,
-              start: "top bottom",
-              end: "bottom top",
-              scrub: 0.6,
-            },
-          }
-        );
-      }
+      const mm = gsap.matchMedia();
 
-      if (parallaxTextRef.current) {
-        gsap.fromTo(
-          parallaxTextRef.current,
-          { yPercent: 4 },
-          {
-            yPercent: -4,
-            ease: "none",
-            scrollTrigger: {
-              trigger: stageRef.current,
-              start: "top bottom",
-              end: "bottom top",
-              scrub: 0.6,
-            },
-          }
-        );
-      }
+      // Keep the layered parallax for wider screens only. On phones it tends to
+      // compound with the stacked layout and push content into awkward positions.
+      mm.add("(min-width: 768px)", () => {
+        if (parallaxImageRef.current) {
+          gsap.fromTo(
+            parallaxImageRef.current,
+            { yPercent: 14 },
+            {
+              yPercent: -14,
+              ease: "none",
+              scrollTrigger: {
+                trigger: stageRef.current,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: 0.6,
+              },
+            }
+          );
+        }
+
+        if (parallaxTextRef.current) {
+          gsap.fromTo(
+            parallaxTextRef.current,
+            { yPercent: 4 },
+            {
+              yPercent: -4,
+              ease: "none",
+              scrollTrigger: {
+                trigger: stageRef.current,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: 0.6,
+              },
+            }
+          );
+        }
+      });
 
       gsap.to(words, {
         y: (i) => (i % 2 === 0 ? "+=14" : "-=14"),
@@ -261,13 +264,13 @@ export default function SkinType() {
     <div
       ref={stageRef}
       data-stage
-      className={`${display.variable} ${mono.variable} border-b border-[#2B2330]/10 py-16 first:pt-0 md:-mx-8 md:w-[calc(100%+4rem)] md:py-24 lg:-mx-12 lg:w-[calc(100%+6rem)] xl:-mx-20 xl:w-[calc(100%+10rem)] 2xl:-mx-32 2xl:w-[calc(100%+16rem)]`}
+      className={`${display.variable} ${mono.variable} overflow-hidden border-b border-[#2B2330]/10 px-4 py-14 first:pt-0 sm:px-6 md:-mx-8 md:w-[calc(100%+4rem)] md:px-0 md:py-24 lg:-mx-12 lg:w-[calc(100%+6rem)] xl:-mx-20 xl:w-[calc(100%+10rem)] 2xl:-mx-32 2xl:w-[calc(100%+16rem)]`}
     >
-      <div className="grid grid-cols-1 items-stretch gap-12 md:grid-cols-[1.15fr_0.85fr] md:gap-16">
+      <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-stretch gap-10 md:grid-cols-[1.15fr_0.85fr] md:gap-16 md:px-8 lg:px-12 xl:px-20 2xl:px-32">
         <div ref={parallaxTextRef} className="flex h-full flex-col justify-center">
           <h2
             data-reveal
-            className="mb-10 font-[family-name:var(--font-display)] text-3xl font-semibold italic leading-[1.1] sm:text-4xl md:text-5xl"
+            className="mb-8 max-w-[11ch] font-[family-name:var(--font-display)] text-[clamp(2.1rem,10vw,3rem)] font-semibold italic leading-[1.05] sm:mb-10 sm:max-w-none sm:text-4xl md:text-5xl"
             style={{
               backgroundImage: GRADIENT,
               WebkitBackgroundClip: "text",
@@ -282,7 +285,7 @@ export default function SkinType() {
             Skin Journeys.
           </h2>
 
-          <div className="space-y-5 font-[family-name:var(--font-mono)] text-lg leading-relaxed text-[#2B2330]/80 md:text-xl">
+          <div className="max-w-[38rem] space-y-5 font-[family-name:var(--font-mono)] text-[clamp(1rem,4.7vw,1.125rem)] leading-relaxed text-[#2B2330]/80 md:text-xl">
             <p data-reveal>Walk into most skincare stores.</p>
             <p data-reveal>
               Someone asks,
@@ -310,10 +313,10 @@ export default function SkinType() {
 
         <div
           ref={canvasRef}
-          className="order-first mx-auto w-full max-w-[280px] select-none sm:max-w-sm md:order-last md:sticky md:top-28 md:mx-0 md:max-w-none"
+          className="order-first mx-auto w-full max-w-[min(100%,22rem)] select-none sm:max-w-sm md:order-last md:sticky md:top-28 md:mx-0 md:max-w-none"
         >
           <div ref={parallaxImageRef} className="flex h-full w-full flex-col items-stretch">
-            <div className="relative h-full min-h-[420px] w-full md:min-h-[540px]">
+            <div className="relative h-[min(118vw,30rem)] min-h-[360px] w-full md:h-full md:min-h-[540px]">
               <div aria-hidden="true" className="h-full w-full">
                 <div className="absolute inset-0 rounded-[28px] border border-[#2B2330]/10 bg-gradient-to-b from-[#FFFBF6]/70 to-[#FFFBF6]/15" />
 
@@ -346,19 +349,19 @@ export default function SkinType() {
                   ref={clearFaceRef}
                   src="/clearskin.png"
                   alt=""
-                  className="absolute inset-5 rounded-[20px] object-cover"
+                  className="absolute inset-4 h-[calc(100%-2rem)] w-[calc(100%-2rem)] rounded-[18px] object-cover sm:inset-5 sm:h-[calc(100%-2.5rem)] sm:w-[calc(100%-2.5rem)] sm:rounded-[20px]"
                 />
 
                 <img
                   ref={faceRef}
                   src="/facescan.png"
                   alt=""
-                  className="absolute inset-5 rounded-[20px] object-cover"
+                  className="absolute inset-4 h-[calc(100%-2rem)] w-[calc(100%-2rem)] rounded-[18px] object-cover sm:inset-5 sm:h-[calc(100%-2.5rem)] sm:w-[calc(100%-2.5rem)] sm:rounded-[20px]"
                 />
 
                 <div
                   ref={scanTrackRef}
-                  className="pointer-events-none absolute inset-5 overflow-hidden rounded-[20px]"
+                  className="pointer-events-none absolute inset-4 overflow-hidden rounded-[18px] sm:inset-5 sm:rounded-[20px]"
                 >
                   <div
                     ref={scanGlowRef}
@@ -409,7 +412,7 @@ export default function SkinType() {
                     type="button"
                     onClick={handleReveal}
                     disabled={isAnimating}
-                    className="pointer-events-auto relative flex shrink-0 items-center gap-2 rounded-full border-2 border-[#FFFBF6]/80 px-6 py-3 font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-[0.15em] text-[#FFFBF6] shadow-[0_10px_24px_-6px_rgba(62,31,61,0.55),0_0_36px_6px_rgba(233,185,204,0.6)] transition-transform duration-300 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-70 sm:px-7 sm:py-3.5 sm:text-xs"
+                    className="pointer-events-auto relative flex min-h-12 max-w-[calc(100vw-5rem)] shrink-0 items-center justify-center gap-2 whitespace-normal rounded-full border-2 border-[#FFFBF6]/80 px-5 py-3 text-center font-[family-name:var(--font-mono)] text-[10px] uppercase leading-tight tracking-[0.14em] text-[#FFFBF6] shadow-[0_10px_24px_-6px_rgba(62,31,61,0.55),0_0_36px_6px_rgba(233,185,204,0.6)] transition-transform duration-300 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-70 sm:max-w-none sm:px-7 sm:py-3.5 sm:text-xs sm:tracking-[0.15em]"
                     style={{ backgroundImage: GRADIENT }}
                   >
                     {isAnimating ? "Scanning\u2026" : revealed ? "Scan Again" : "Reveal My Clear Skin"}

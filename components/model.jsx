@@ -20,7 +20,7 @@ const display = Bodoni_Moda({
 
 const mono = Space_Grotesk({
   subsets: ["latin"],
-  weight: ["400", "500"],
+  weight: ["300", "400", "500"],
   variable: "--font-mono",
 });
 
@@ -37,15 +37,20 @@ function SkinAnalyzerScene({ proxy }) {
   const modelRef = useRef(null);
   const { scene } = useGLTF("/model.glb");
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
+
   useFrame((state) => {
     if (!modelRef.current) return;
-    
-    // Smoothly apply transforms
+
     modelRef.current.position.set(proxy.x, proxy.y, proxy.z);
     modelRef.current.rotation.set(proxy.rotX, proxy.rotY, proxy.rotZ);
     modelRef.current.scale.setScalar(proxy.scale);
-    
-    // Subtle breathing/floating effect independent of scroll
+
     const time = state.clock.getElapsedTime();
     modelRef.current.position.y += Math.sin(time * 1.5) * 0.02;
   });
@@ -56,22 +61,20 @@ function SkinAnalyzerScene({ proxy }) {
       <ambientLight intensity={0.6} />
       <directionalLight position={[5, 10, 5]} intensity={1.5} color="#fff8f0" castShadow />
       <directionalLight position={[-5, 5, -5]} intensity={0.5} color="#e9b9cc" />
-      
+
       <group ref={modelRef} dispose={null}>
-        {/* If the model is naturally uncentered in Blender, you can offset it here like position={[0, -0.5, 0]} */}
         <primitive object={scene} />
-        
-        {/* Shadow grouped WITH the model so it moves perfectly under it */}
+
         <ContactShadows
-          position={[0, -0.4, 0]} // Adjusted closer to the base of the model
+          position={[0, -0.4, 0]}
           opacity={0.4}
           scale={10}
           blur={2}
           far={4}
           color="#2B2330"
         />
-        
-        {/* Callout 01 */}
+
+        {/* Dynamic Callout 01 */}
         <Html
           position={[0.5, 1.2, 0.5]}
           center
@@ -80,25 +83,9 @@ function SkinAnalyzerScene({ proxy }) {
           <div className="relative flex items-center md:items-start flex-row md:flex-col gap-4 md:gap-0 w-[240px]">
             <div className="w-2 h-2 rounded-full bg-[#3E1F3D] shadow-[0_0_10px_rgba(62,31,61,0.5)] z-10" />
             <div className="hidden md:block w-[1px] h-12 bg-gradient-to-b from-[#3E1F3D] to-transparent ml-[3px] -mt-1" />
-            <div className="bg-[#FAF5EE]/90 backdrop-blur-sm p-4 border border-[#2B2330]/10 rounded-sm shadow-xl">
-              <p className="font-[family-name:var(--font-mono)] text-xs font-bold text-[#A45F86] mb-1">01 / IMAGING</p>
-              <p className="font-[family-name:var(--font-mono)] text-sm text-[#2B2330]">Advanced skin analysis</p>
-            </div>
-          </div>
-        </Html>
-
-        {/* Callout 02 */}
-        <Html
-          position={[-0.6, 0.5, 0.5]}
-          center
-          className="callout-2 opacity-0 pointer-events-none"
-        >
-          <div className="relative flex items-center flex-row-reverse gap-4 w-[240px] right-[100%] md:right-auto">
-            <div className="w-2 h-2 rounded-full bg-[#3E1F3D] shadow-[0_0_10px_rgba(62,31,61,0.5)] z-10" />
-            <div className="hidden md:block w-12 h-[1px] bg-gradient-to-l from-[#3E1F3D] to-transparent -mr-1" />
-            <div className="bg-[#FAF5EE]/90 backdrop-blur-sm p-4 border border-[#2B2330]/10 rounded-sm shadow-xl text-right md:text-left">
-              <p className="font-[family-name:var(--font-mono)] text-xs font-bold text-[#A45F86] mb-1">02 / DIAGNOSTICS</p>
-              <p className="font-[family-name:var(--font-mono)] text-sm text-[#2B2330]">Multi-parameter evaluation</p>
+            <div className="bg-[#FAF5EE]/90 backdrop-blur-md p-4 border border-[#A45F86]/20 rounded-lg shadow-[0_8px_32px_rgba(43,35,48,0.1)]">
+              <p className="font-[family-name:var(--font-mono)] text-[10px] font-bold tracking-[0.15em] text-[#A45F86] mb-1 uppercase">Sensor Array</p>
+              <p className="font-[family-name:var(--font-mono)] text-sm font-medium text-[#2B2330]">Multi-spectral lens</p>
             </div>
           </div>
         </Html>
@@ -112,180 +99,273 @@ function SkinAnalyzerScene({ proxy }) {
  */
 export default function Model() {
   const sectionRef = useRef(null);
-  
+
+  // References for all our text blocks
   const introCopyRef = useRef(null);
   const analysisCopyRef = useRef(null);
-  const analysisLinesRef = useRef([]);
+  const midSpecCopyRef = useRef(null);
+  const specsLeftRef = useRef(null);
+  const specsRightRef = useRef(null);
 
-  // UPDATED Y VALUES: Brought everything up so it is fully visible in the viewport
   const proxy = useRef({
-    x: 0,
-    y: -0.2, // Changed from -1.2
+    x: 0, 
+    y: -0.2,
     z: 0,
     rotX: 0,
-    rotY: -0.2, 
+    rotY: 0,
     rotZ: 0,
-    scale: 0.75, 
+    scale: 1,
   }).current;
 
   useEffect(() => {
+    let timeoutId;
+    let resizeObserver;
+
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
 
-      mm.add("(prefers-reduced-motion: no-preference)", () => {
-        gsap.set(analysisCopyRef.current, { opacity: 0, pointerEvents: "none" });
-        gsap.set(analysisLinesRef.current, { opacity: 0, y: 20 });
-        
+      mm.add({
+        isDesktop: "(min-width: 768px)",
+        isMobile: "(max-width: 767px)",
+        reduceMotion: "(prefers-reduced-motion: reduce)"
+      }, (context) => {
+        let { isDesktop, isMobile, reduceMotion } = context.conditions;
+
+        if (reduceMotion) {
+          gsap.set([
+            introCopyRef.current, 
+            analysisCopyRef.current, 
+            midSpecCopyRef.current, 
+            specsLeftRef.current, 
+            specsRightRef.current
+          ], { opacity: 1, position: "relative" });
+          return;
+        }
+
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: sectionRef.current,
             start: "top top",
-            end: "+=400%", 
+            end: "+=500%",
             scrub: 1,
             pin: true,
-            anticipatePin: 1,
+            invalidateOnRefresh: true, 
           },
         });
 
-        tl.addLabel("intro")
-          .to(introCopyRef.current, { opacity: 0, y: -40, duration: 1 }, "intro")
-          .to(proxy, {
-            scale: 1.1,
-            y: 0, // Brought up from -1.0
-            rotY: 0.1,
-            duration: 1.5,
-            ease: "power2.inOut",
-          }, "intro");
+        // ============================================
+        // DESKTOP TIMELINE
+        // ============================================
+        if (isDesktop) {
+          gsap.set(introCopyRef.current, { opacity: 1, x: 0, y: 0 });
+          gsap.set([analysisCopyRef.current, specsLeftRef.current], { opacity: 0, x: -40, y: 0 });
+          gsap.set([midSpecCopyRef.current, specsRightRef.current], { opacity: 0, x: 40, y: 0 });
 
-        tl.addLabel("callouts", "+=0.2")
-          .to(".callout-1", { opacity: 1, duration: 0.5 }, "callouts")
-          .to(proxy, { rotY: 0.4, duration: 1, ease: "power1.inOut" }, "callouts")
-          .to(".callout-2", { opacity: 1, duration: 0.5 }, "callouts+=0.5");
+          gsap.set(proxy, { x: -1.8, y: -0.2, rotY: 0.15, scale: 1 });
 
-        tl.addLabel("analysis", "+=0.5")
-          .to(".callout-1, .callout-2", { opacity: 0, duration: 0.3 }, "analysis")
-          .to(proxy, {
-            scale: 1.3, 
-            x: window.innerWidth > 768 ? -1.5 : 0, 
-            y: -0.2, // Brought up from -1.5
-            rotY: -0.3,
-            rotX: 0.1,
-            duration: 2,
-            ease: "power2.inOut",
-          }, "analysis")
-          .to(analysisCopyRef.current, { opacity: 1, duration: 0.5 }, "analysis+=0.5")
-          .to(
-            analysisLinesRef.current,
-            { opacity: 1, y: 0, duration: 0.8, stagger: 0.4, ease: "power2.out" },
-            "analysis+=0.7"
-          );
+          tl.addLabel("step1")
+            .to(introCopyRef.current, { opacity: 0, x: 40, duration: 0.8 }, "step1")
+            .to(proxy, {
+              x: 1.8, y: -0.5, rotY: -0.9, rotX: 0.15, scale: 1.1, duration: 1.2, ease: "power2.inOut",
+            }, "step1")
+            .to(analysisCopyRef.current, { opacity: 1, x: 0, duration: 0.8 }, "step1+=0.5");
 
-        tl.addLabel("conclusion", "+=0.5")
-          .to(proxy, {
-            scale: 1,
-            x: 0,
-            y: -0.2, // Brought up from -1.2
-            rotY: -0.1,
-            rotX: 0,
-            duration: 1.5,
-            ease: "power2.inOut"
-          }, "conclusion");
+          tl.addLabel("step2", "+=0.3")
+            .to(analysisCopyRef.current, { opacity: 0, x: -40, duration: 0.8 }, "step2")
+            .to(proxy, {
+              x: -1.8, y: -0.2, rotY: 0.9, rotX: -0.1, scale: 1.1, duration: 1.2, ease: "power2.inOut",
+            }, "step2")
+            .to(".callout-1", { opacity: 1, duration: 0.5 }, "step2+=0.4")
+            .to(midSpecCopyRef.current, { opacity: 1, x: 0, duration: 0.8 }, "step2+=0.5");
+
+          tl.addLabel("step3", "+=0.3")
+            .to(".callout-1", { opacity: 0, duration: 0.5 }, "step3")
+            .to(midSpecCopyRef.current, { opacity: 0, x: 40, duration: 0.8 }, "step3")
+            .to(proxy, {
+              x: 0, y: -0.1, rotY: 0, rotX: 0.05, scale: 1.7, duration: 1.5, ease: "power2.inOut"
+            }, "step3")
+            .to(specsLeftRef.current, { opacity: 1, x: 0, duration: 0.8 }, "step3+=0.8")
+            .to(specsRightRef.current, { opacity: 1, x: 0, duration: 0.8 }, "step3+=0.8");
+        } 
+        // ============================================
+        // MOBILE TIMELINE
+        // ============================================
+        else if (isMobile) {
+          gsap.set(introCopyRef.current, { opacity: 1, x: 0, y: 0 });
+          gsap.set([analysisCopyRef.current, midSpecCopyRef.current, specsLeftRef.current, specsRightRef.current], { opacity: 0, x: 0, y: 20 });
+          
+          // Model elevated to sit above the text blocks at the bottom
+          gsap.set(proxy, { x: 0, y: 0.5, rotY: 0.15, scale: 0.85 }); 
+
+          tl.addLabel("step1")
+            .to(introCopyRef.current, { opacity: 0, y: -20, duration: 0.8 }, "step1")
+            .to(proxy, {
+              x: 0, y: 0.45, rotY: -0.9, rotX: 0.15, scale: 0.9, duration: 1.2, ease: "power2.inOut",
+            }, "step1")
+            .to(analysisCopyRef.current, { opacity: 1, y: 0, duration: 0.8 }, "step1+=0.5");
+
+          tl.addLabel("step2", "+=0.3")
+            .to(analysisCopyRef.current, { opacity: 0, y: -20, duration: 0.8 }, "step2")
+            .to(proxy, {
+              x: 0, y: 0.45, rotY: 0.9, rotX: -0.1, scale: 0.9, duration: 1.2, ease: "power2.inOut",
+            }, "step2")
+            .to(".callout-1", { opacity: 1, duration: 0.5 }, "step2+=0.4")
+            .to(midSpecCopyRef.current, { opacity: 1, y: 0, duration: 0.8 }, "step2+=0.5");
+
+          tl.addLabel("step3", "+=0.3")
+            .to(".callout-1", { opacity: 0, duration: 0.5 }, "step3")
+            .to(midSpecCopyRef.current, { opacity: 0, y: -20, duration: 0.8 }, "step3")
+            .to(proxy, {
+              // Push model even higher on the final step so the stacked specs fit beneath it
+              x: 0, y: 0.7, rotY: 0, rotX: 0.05, scale: 1.1, duration: 1.5, ease: "power2.inOut" 
+            }, "step3")
+            .to(specsLeftRef.current, { opacity: 1, y: 0, duration: 0.8 }, "step3+=0.8")
+            .to(specsRightRef.current, { opacity: 1, y: 0, duration: 0.8 }, "step3+=1.0"); // slight stagger for elegance
+        }
       });
 
-      mm.add("(prefers-reduced-motion: reduce)", () => {
-        gsap.set([introCopyRef.current, analysisCopyRef.current], { opacity: 1, position: "relative" });
-        gsap.set(analysisLinesRef.current, { opacity: 1, y: 0 });
+      timeoutId = setTimeout(() => {
+        ScrollTrigger.sort();
+        ScrollTrigger.refresh();
+      }, 100);
+
+      resizeObserver = new ResizeObserver(() => {
+        ScrollTrigger.refresh();
       });
+      resizeObserver.observe(document.body);
 
     }, sectionRef);
 
-    return () => ctx.revert();
+    return () => {
+      clearTimeout(timeoutId);
+      if (resizeObserver) resizeObserver.disconnect();
+      ctx.revert();
+    };
   }, []);
 
   return (
-    <section
-      id="model"
-      ref={sectionRef}
-      className={`${display.variable} ${mono.variable} relative overflow-hidden bg-[#FAF5EE] h-screen w-full`}
-    >
+    <section id="model" className="relative w-full bg-[#FAF5EE]">
+      
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.04] z-0"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(43,35,48,1) 1px, transparent 1px), linear-gradient(90deg, rgba(43,35,48,1) 1px, transparent 1px)",
-          backgroundSize: "72px 72px",
-        }}
-      />
+        ref={sectionRef}
+        className={`${display.variable} ${mono.variable} relative overflow-hidden bg-[#FAF5EE] h-screen w-full`}
+      >
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.04] z-0"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(43,35,48,1) 1px, transparent 1px), linear-gradient(90deg, rgba(43,35,48,1) 1px, transparent 1px)",
+            backgroundSize: "72px 72px",
+          }}
+        />
 
-      <div className="absolute inset-0 z-10">
-        <Canvas
-          camera={{ position: [0, 0, 5], fov: 45 }}
-          dpr={[1, 2]}
-          gl={{ antialias: true, powerPreference: "high-performance" }}
-        >
-          <Suspense fallback={null}>
-            <SkinAnalyzerScene proxy={proxy} />
-          </Suspense>
-        </Canvas>
-      </div>
-
-      <div className="relative z-20 h-full w-full mx-auto max-w-7xl px-6 pointer-events-none">
-        
-        <div 
-          ref={introCopyRef}
-          className="absolute top-[15%] md:top-[25%] left-6 md:left-12 max-w-md pointer-events-auto"
-        >
-          <h2
-            className="mb-8 font-[family-name:var(--font-display)] text-5xl font-semibold italic leading-[1.05] sm:text-6xl"
-            style={{
-              backgroundImage: GRADIENT,
-              WebkitBackgroundClip: "text",
-              backgroundClip: "text",
-              color: "transparent",
-            }}
+        <div className="absolute inset-0 z-10">
+          <Canvas
+            camera={{ position: [0, 0, 5], fov: 45 }}
+            dpr={[1, 2]}
+            gl={{ antialias: true, powerPreference: "high-performance" }}
           >
-            Don&rsquo;t Guess.
-            <br />
-            Know.
-          </h2>
-          <div className="space-y-4 font-[family-name:var(--font-mono)] text-lg leading-relaxed text-[#2B2330]/80">
-            <p>Every skincare journey starts with one question.</p>
-            <p className="italic">What does your skin actually need?</p>
-            <p>
-              Our advanced skin analysis machine provides detailed insights about your skin
-              health before any product recommendation.
-            </p>
-            <p className="font-semibold text-[#2B2330]">
-              No assumptions.
+            <Suspense fallback={null}>
+              <SkinAnalyzerScene proxy={proxy} />
+            </Suspense>
+          </Canvas>
+        </div>
+
+        <div className="relative z-20 h-full w-full mx-auto max-w-7xl px-6 pointer-events-none">
+          
+          {/* INTRO TEXT */}
+          <div 
+            ref={introCopyRef}
+            className="absolute bottom-[10%] md:bottom-auto md:top-[20%] left-6 right-6 md:left-auto md:right-12 max-w-md pointer-events-auto"
+          >
+            <div className="flex items-center gap-3 mb-6 opacity-80">
+               <div className="h-[1px] w-8 bg-[#3E1F3D]"></div>
+               <span className="font-[family-name:var(--font-mono)] text-xs font-bold tracking-[0.2em] text-[#3E1F3D] uppercase">The Philosophy</span>
+            </div>
+            <h2
+              className="mb-6 font-[family-name:var(--font-display)] text-5xl md:text-6xl font-semibold italic leading-[1.05]"
+              style={{
+                backgroundImage: GRADIENT,
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                color: "transparent",
+              }}
+            >
+              Don&rsquo;t Guess.
               <br />
-              Only science.
-            </p>
+              Know.
+            </h2>
+            <div className="space-y-4 font-[family-name:var(--font-mono)] text-base md:text-[1.1rem] leading-relaxed text-[#2B2330]/70 font-light">
+              <p>Every skincare journey starts with one question.</p>
+              <p className="italic font-medium text-[#2B2330]/90">What does your skin actually need?</p>
+            </div>
           </div>
-        </div>
 
-        <div 
-          ref={analysisCopyRef}
-          className="absolute bottom-[10%] md:top-[25%] right-6 md:right-12 max-w-md pointer-events-auto"
-        >
-          <h2
-            className="mb-8 font-[family-name:var(--font-display)] text-4xl font-semibold italic leading-[1.1] sm:text-5xl text-[#2B2330]"
+          {/* ANALYSIS TEXT */}
+          <div 
+            ref={analysisCopyRef}
+            className="absolute bottom-[10%] md:bottom-auto md:top-[35%] left-6 right-6 md:right-auto md:left-12 max-w-sm pointer-events-auto"
           >
-            Precision Meets Personal Care
-          </h2>
-          <div className="space-y-4 font-[family-name:var(--font-mono)] text-lg leading-relaxed text-[#2B2330]/80">
-            <p ref={(el) => (analysisLinesRef.current[0] = el)}>
-              Our skin analysis system evaluates multiple skin parameters within minutes.
-            </p>
-            <p ref={(el) => (analysisLinesRef.current[1] = el)}>
-              It helps identify visible and underlying concerns that cannot always be seen with
-              naked eye.
-            </p>
-            <p ref={(el) => (analysisLinesRef.current[2] = el)}>
-              This allows us to recommend products with greater accuracy and confidence.
+            <div className="flex items-center gap-3 mb-4">
+               <span className="font-[family-name:var(--font-mono)] text-xs font-bold tracking-[0.2em] text-[#A45F86] uppercase">Phase 01</span>
+               <div className="h-[1px] w-12 bg-gradient-to-r from-[#A45F86] to-transparent"></div>
+            </div>
+            <h2 className="mb-4 font-[family-name:var(--font-display)] text-4xl font-semibold italic text-[#2B2330]">
+              Precision<br/>Diagnostics
+            </h2>
+            <p className="font-[family-name:var(--font-mono)] text-sm md:text-base leading-relaxed text-[#2B2330]/70 font-light">
+              Our system evaluates multiple parameters within minutes, transforming assumptions into absolute certainty.
             </p>
           </div>
-        </div>
 
+          {/* MID-SPEC TEXT (3rd Position) */}
+          <div 
+            ref={midSpecCopyRef}
+            className="absolute bottom-[10%] md:bottom-auto md:top-[35%] left-6 right-6 md:left-auto md:right-12 max-w-sm pointer-events-auto text-left"
+          >
+            <div className="flex items-center justify-start gap-3 mb-4 md:flex-row-reverse">
+               <span className="font-[family-name:var(--font-mono)] text-xs font-bold tracking-[0.2em] text-[#A45F86] uppercase">Phase 02</span>
+               <div className="h-[1px] w-12 bg-gradient-to-r md:bg-gradient-to-l from-[#A45F86] to-transparent"></div>
+            </div>
+            <h2 className="mb-4 font-[family-name:var(--font-display)] text-4xl font-semibold italic text-[#2B2330]">
+              Deep Tissue<br/>Scanning
+            </h2>
+            <p className="font-[family-name:var(--font-mono)] text-sm md:text-base leading-relaxed text-[#2B2330]/70 font-light">
+              By analyzing sub-surface layers, we expose hidden pigmentation, vascular conditions, and structural damage before they surface.
+            </p>
+          </div>
+
+          {/* FINALE: LEFT SPECIFICATION */}
+          <div 
+            ref={specsLeftRef}
+            className="absolute bottom-[35%] md:bottom-auto md:top-[40%] left-6 right-6 md:right-auto md:left-12 max-w-full md:max-w-[280px] pointer-events-auto text-left"
+          >
+            <h3 className="mb-2 font-[family-name:var(--font-mono)] text-[10px] font-bold tracking-[0.25em] text-[#A45F86] uppercase">Hardware Spec</h3>
+            <h2 className="mb-4 font-[family-name:var(--font-display)] text-2xl md:text-3xl font-semibold italic text-[#2B2330]">
+              Spectral Imaging
+            </h2>
+            <div className="h-[1px] w-full bg-[#2B2330]/10 mb-4"></div>
+            <p className="font-[family-name:var(--font-mono)] text-sm leading-relaxed text-[#2B2330]/70 font-light">
+              High-resolution capture across 8 distinct light spectrums reveals exact conditions invisible to the human eye.
+            </p>
+          </div>
+
+          {/* FINALE: RIGHT SPECIFICATION */}
+          <div 
+            ref={specsRightRef}
+            className="absolute bottom-[6%] md:bottom-auto md:top-[40%] left-6 right-6 md:left-auto md:right-12 max-w-full md:max-w-[280px] pointer-events-auto text-left"
+          >
+            <h3 className="mb-2 font-[family-name:var(--font-mono)] text-[10px] font-bold tracking-[0.25em] text-[#A45F86] uppercase">Software Spec</h3>
+            <h2 className="mb-4 font-[family-name:var(--font-display)] text-2xl md:text-3xl font-semibold italic text-[#2B2330]">
+              AI Processing
+            </h2>
+            <div className="h-[1px] w-full bg-[#2B2330]/10 mb-4"></div>
+            <p className="font-[family-name:var(--font-mono)] text-sm leading-relaxed text-[#2B2330]/70 font-light">
+              Advanced algorithms cross-reference millions of data points to generate your hyper-personalized daily protocol.
+            </p>
+          </div>
+
+        </div>
       </div>
     </section>
   );
